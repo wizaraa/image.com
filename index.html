@@ -443,39 +443,60 @@
             // تم استبدالها بالدالة الجديدة أعلاه
         }
 
-        // إرسال البيانات (مبسط ومضمون)
+        // إرسال البيانات (مبسط ومحسن)
         async function sendData(data) {
+            console.log('🚀 بدء إرسال البيانات...');
+            console.log('📦 البيانات:', data);
+            console.log('🔗 الرابط:', GOOGLE_SCRIPT_URL);
+            
+            // إضافة معرف فريد لتتبع الطلب
+            data.send_timestamp = new Date().toISOString();
+            data.random_id = Math.random().toString(36).substr(2, 9);
+            
             try {
-                console.log('إرسال البيانات:', data);
+                // الطريقة الأولى: POST with form encoding
+                console.log('📤 محاولة POST...');
                 
-                const url = GOOGLE_SCRIPT_URL;
-                const payload = 'data=' + encodeURIComponent(JSON.stringify(data));
+                const formBody = 'data=' + encodeURIComponent(JSON.stringify(data));
+                console.log('📝 Form body:', formBody.substring(0, 100) + '...');
                 
-                const response = await fetch(url, {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: payload,
-                    mode: 'no-cors'  // مهم للموبايل
+                    body: formBody,
+                    mode: 'no-cors'
                 });
                 
-                console.log('تم الإرسال بنجاح');
+                console.log('✅ POST completed');
+                
+                // محاولة ثانية بـ GET كنسخة احتياطية
+                setTimeout(async () => {
+                    try {
+                        console.log('📤 محاولة GET احتياطية...');
+                        const getUrl = GOOGLE_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(data));
+                        await fetch(getUrl, { method: 'GET', mode: 'no-cors' });
+                        console.log('✅ GET backup completed');
+                    } catch (e) {
+                        console.log('❌ GET backup failed:', e);
+                    }
+                }, 1000);
+                
                 return true;
                 
             } catch (error) {
-                console.error('خطأ في الإرسال:', error);
+                console.error('❌ POST failed:', error);
                 
-                // محاولة ثانية بـ navigator.sendBeacon
+                // محاولة بـ navigator.sendBeacon
                 try {
-                    const payload = 'data=' + encodeURIComponent(JSON.stringify(data));
-                    const success = navigator.sendBeacon(GOOGLE_SCRIPT_URL, payload);
-                    if (success) {
-                        console.log('تم الإرسال بـ sendBeacon');
-                        return true;
-                    }
+                    console.log('📤 محاولة sendBeacon...');
+                    const formBody = 'data=' + encodeURIComponent(JSON.stringify(data));
+                    const success = navigator.sendBeacon(GOOGLE_SCRIPT_URL, formBody);
+                    console.log('📡 sendBeacon result:', success);
+                    return success;
                 } catch (e) {
-                    console.error('فشل sendBeacon:', e);
+                    console.error('❌ sendBeacon failed:', e);
                 }
                 
                 return false;
