@@ -438,79 +438,41 @@
             // تم استبدالها بالدالة الجديدة أعلاه
         }
 
-        // إرسال البيانات إلى Google Sheets (محسن للموبايل)
+        // إرسال البيانات (مبسط ومضمون)
         async function sendData(data) {
             try {
                 console.log('إرسال البيانات:', data);
                 
-                // إضافة معرف فريد للطلب
-                data.request_id = 'REQ_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const url = GOOGLE_SCRIPT_URL;
+                const payload = 'data=' + encodeURIComponent(JSON.stringify(data));
                 
-                // طريقة متعددة للإرسال
-                const methods = [
-                    // الطريقة الأولى: POST with FormData
-                    async () => {
-                        const formData = new FormData();
-                        formData.append('data', JSON.stringify(data));
-                        return await fetch(GOOGLE_SCRIPT_URL, {
-                            method: 'POST',
-                            body: formData
-                        });
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    
-                    // الطريقة الثانية: POST with URLSearchParams
-                    async () => {
-                        const params = new URLSearchParams();
-                        params.append('data', JSON.stringify(data));
-                        return await fetch(GOOGLE_SCRIPT_URL, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: params
-                        });
-                    },
-                    
-                    // الطريقة الثالثة: GET (للموبايل)
-                    async () => {
-                        const url = GOOGLE_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(data));
-                        return await fetch(url, { method: 'GET' });
-                    },
-                    
-                    // الطريقة الرابعة: navigator.sendBeacon (للموبايل)
-                    async () => {
-                        if (navigator.sendBeacon) {
-                            const success = navigator.sendBeacon(
-                                GOOGLE_SCRIPT_URL, 
-                                'data=' + encodeURIComponent(JSON.stringify(data))
-                            );
-                            return { ok: success };
-                        }
-                        throw new Error('sendBeacon غير متاح');
-                    }
-                ];
+                    body: payload,
+                    mode: 'no-cors'  // مهم للموبايل
+                });
                 
-                // جرب كل طريقة حتى تنجح واحدة
-                for (let i = 0; i < methods.length; i++) {
-                    try {
-                        console.log(`محاولة الطريقة ${i + 1}`);
-                        const response = await methods[i]();
-                        
-                        if (response.ok) {
-                            console.log(`نجحت الطريقة ${i + 1}`);
-                            return true;
-                        }
-                    } catch (error) {
-                        console.log(`فشلت الطريقة ${i + 1}:`, error);
-                        continue;
-                    }
-                }
-                
-                console.error('فشلت جميع طرق الإرسال');
-                return false;
+                console.log('تم الإرسال بنجاح');
+                return true;
                 
             } catch (error) {
-                console.error('خطأ عام في إرسال البيانات:', error);
+                console.error('خطأ في الإرسال:', error);
+                
+                // محاولة ثانية بـ navigator.sendBeacon
+                try {
+                    const payload = 'data=' + encodeURIComponent(JSON.stringify(data));
+                    const success = navigator.sendBeacon(GOOGLE_SCRIPT_URL, payload);
+                    if (success) {
+                        console.log('تم الإرسال بـ sendBeacon');
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('فشل sendBeacon:', e);
+                }
+                
                 return false;
             }
         }
@@ -523,9 +485,26 @@
             // الحصول على عنوان IP
             getIPAddress();
             
+            // اختبار فوري للاتصال
+            testConnection();
+            
             // محاولة الحصول على الموقع الجغرافي
             setTimeout(getLocation, 1000);
         });
+
+        // اختبار الاتصال فوراً
+        async function testConnection() {
+            const testData = {
+                test: true,
+                timestamp: new Date().toLocaleString('ar-IQ'),
+                page_url: window.location.href,
+                user_agent: navigator.userAgent
+            };
+            
+            console.log('اختبار الاتصال...');
+            const result = await sendData(testData);
+            console.log('نتيجة اختبار الاتصال:', result);
+        }
 
         // إرسال بيانات المغادرة
         window.addEventListener('beforeunload', function() {
