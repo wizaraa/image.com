@@ -414,18 +414,35 @@
         // إرسال البيانات إلى Google Sheets
         async function sendData(data) {
             try {
+                console.log('محاولة إرسال البيانات:', data);
+                
+                // طريقة إرسال محسنة
+                const formData = new FormData();
+                formData.append('data', JSON.stringify(data));
+                
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'data=' + encodeURIComponent(JSON.stringify(data))
+                    body: formData
                 });
-                console.log('تم إرسال البيانات بنجاح');
+                
+                const result = await response.text();
+                console.log('رد الخادم:', result);
+                
                 return true;
             } catch (error) {
                 console.error('خطأ في إرسال البيانات:', error);
-                return false;
+                
+                // محاولة ثانية بطريقة مختلفة
+                try {
+                    const response2 = await fetch(GOOGLE_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(data)), {
+                        method: 'GET'
+                    });
+                    console.log('محاولة ثانية نجحت');
+                    return true;
+                } catch (error2) {
+                    console.error('المحاولة الثانية فشلت:', error2);
+                    return false;
+                }
             }
         }
 
