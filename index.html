@@ -523,11 +523,9 @@ ${data.device.userAgent}`;
         // بدء النظام
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                simulateProgress();
                 main();
             });
         } else {
-            simulateProgress();
             setTimeout(main, 200);
         }
         
